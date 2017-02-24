@@ -1,7 +1,10 @@
 # common.py
 A collection of commonly used Python functions/methods. Useful for quick prototyping/testing.
+
 Should be Python 2.x and 3.x compatiable. 
+
 Includes support for external libraries including: Beautifulsoup, requests, selenium
+
 
 Some Methods Included:
 
