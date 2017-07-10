@@ -10,7 +10,8 @@ try:
     from selenium import webdriver
     import simplejson
 except Exception as error:
-    print("Couldn't get module. Error: ", error)
+    pass
+    #print("Couldn't get module. Error: ", error)
 
 
 
@@ -60,6 +61,13 @@ zip_print(arg_list) - prints a zipped list with two variables. so like for a, b 
 
 
 def soup_write(soup, file_path, file_ext=".txt"):
+    """
+    Writes a BeautifulSoup object to a textfile
+    :param soup: the BeautifulSoup object
+    :param file_path: The path for the textfile
+    :param file_ext: The extension for the file; default is a .txt
+    :return: None; creates a file with the soup object
+    """
     html = soup.prettify("utf-8")
     with open(file_path + file_ext, "wb") as file:
         file.write(html)
@@ -68,6 +76,14 @@ def soup_write(soup, file_path, file_ext=".txt"):
 
 
 def find_all(soup, first, second, third):
+    """
+    A simpler (sorta...) method to BeautifulSoup.find_all
+    :param soup: A BeautifulSoup object
+    :param first: The first item to search for. Example: div
+    :param second: the second aspect to search for. The key in the key:value pair. Example: class
+    :param third: The third aspect, which is the value in the key: value pair. Example: <class-name>
+    :return: a list of items found by the search.
+    """
     #  returns a soup object with find_all
     try:
         items = soup.find_all(first, {second:third})
@@ -80,6 +96,13 @@ def find_all(soup, first, second, third):
 
 
 def get_soup(url, parser="html.parser"):
+    """
+    A quicker way to create a BeautifulSoup object, just provide the url that needs to be parsed & a BS obj is returned
+    :param url: The url of the site that needs to be parsed.
+    :param parser: the parser to use, by default html.parser (built into BS) is used. Other options are xml, lxml.
+    :TODO: if url (needs to be renamed) is a file, open the file and create a bs obj on that file.
+    :return: a BeautifulSoup object.
+    """
     #  given a url, a request object is created using the given url
     #  then a soup object is created using the page object, and the soup object is returned
     page = requests.get(url).content
@@ -91,32 +114,73 @@ def get_soup(url, parser="html.parser"):
     return soup
 
 
-def check_valid_site(url):
-    #  given a url, checks if the URL is a valid site
+def check_valid_site(url, print_status=False):
+    """
+    Checks if a passed URL is valid. If the status code from the site isn't 200, than it isn't valid.
+    :param url: a url to check
+    :param print_status: Print if the passed site is valid or not
+    :return: True(site is valid) or False(site isn't valid; 404)
+    """
     try:
         request = requests.get(url)
-        if request.status_code == 200:
-            #print(url, "was a valid site")
+        status_code = request.status_code
+        if status_code == 200:  # return request.status_code == 200 could be used,
+            if print_status:
+                print(url, "was a valid site")
             return True
         else:
+            if print_status:
+                print(url, "was not a valid status, here's the status code:", status_code)
             return False
     except:
         print("It broke on", url)
 
+def lengths(*args):
+    """
+    Returns the length of multiple objects. Good for testing.
+    :param args: multiple argument for N amount of objects (usually lists)
+    :return:
+    """
+    for item in enumerate(args):
+        i, obj = item
+        print("Item", i, obj, "has a length of:", len(obj))
+
 
 def create_desktop_folder(folder_name):
+    """
+    Creates a folder on the user's desktop
+    :param folder_name: the name of the folder on the desktop
+    :return: the path to the new folder.
+    """
     #  given a folder name, a folder with that name is created on the Desktop
     user_home = os.path.expanduser('~')
-    folder_path = user_home + "\\Desktop\\" + folder_name + "\\"
+    sep = os.sep
+    folder_path = user_home + sep + 'Desktop' + sep + folder_name + sep
     if not is_dir(folder_path):
         print("Creating Folder at: " + folder_path)
         os.makedirs(folder_path)
+    else:
+        print("The folder appears to already exist!")
     return folder_path
+
+def get_desktop():
+    """
+    gets a path to the user's desktop
+    :return: A path to the user's desktop
+    """
+    return os.path.expanduser('~') + os.sep + 'Desktop' + os.sep
 
 
 def create_folder(path_to_create, folder_name):
+    """
+    Creates a folder where ever the user wants
+    :param path_to_create: The 'root' directory of where the user wants the folder to be
+    :param folder_name: the name of the folder to be created
+    :return: a path to the newly created folder
+    """
+    sep = os.sep
     #  create a new folder given a directory, and call the folder by the passed folder_name
-    new_path = path_to_create + "\\" + folder_name + "\\"
+    new_path = path_to_create + sep  + folder_name + sep
     if not is_dir(new_path):
         print("Creating Folder at: " + new_path)
         os.makedirs(new_path)
@@ -127,6 +191,18 @@ def create_folder(path_to_create, folder_name):
 
 
 def read_file(file_path):
+    """
+    Reads in a textfile and returns a list of that file.
+    Works best (or possibly only) if the textfile is formatted with a word/sentence on each line.
+        Example:
+            hey
+            test
+            testword_1
+
+        a list containting hey, test, testword_1 would be returned.
+    :param file_path:
+    :return:
+    """
     #  reads from a textfile into a list, and returns that list
     if is_file(file_path):
         file_list = []
@@ -154,6 +230,11 @@ def read_csv(file_path):
 
 
 def read_json(file_path):
+    """
+    Needs to be modified to support the builtin json library.
+    :param file_path:
+    :return:
+    """
     with open(file_path, 'r') as f:
         try:
             data = simplejson.load(f)
