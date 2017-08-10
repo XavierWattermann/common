@@ -1,19 +1,53 @@
-try:
-    import requests
-    from bs4 import BeautifulSoup
-    import os
-    from os import listdir
-    from os.path import isfile, join
-    import urllib
-    import csv
-    import urlparse2
+import requests
+import os
+from os import listdir
+from os.path import isfile, join
+import urllib
+import csv
+import time
+from time import clock
+import shutil
+import sys
+import random
+import string
+import json
+
+sep = os.sep
+cwd = os.getcwd()
+
+def create_driver(use_chrome=True, chromedriver_path=r'C:\Users\xavi\AppData\Local\Continuum\Anaconda3\chromedriver.exe',
+                  phantomjs_path=r"C:\Users\xavi\AppData\Local\Continuum\Anaconda3\phantomjs.exe"):
+    """
+    Creates a webdriver using Selenium
+    :param use_chrome: True - use a chromedriver, False - Use PhantomJS
+    :param chromedriver_path: Path to the chromedriver
+    :param phantomjs_path: Path to PhantomJS
+    :return: a driver
+    """
     from selenium import webdriver
-    import simplejson
-except Exception as error:
-    pass
-    #print("Couldn't get module. Error: ", error)
+    from selenium.webdriver.common.keys import Keys
 
+    if use_chrome:
+        if is_file(chromedriver_path):
+            return webdriver.Chrome(chromedriver_path)
+        else:
+            while True:
+                print("Your chromedriver path doesn't appear to exist")
+                path = input("Enter chromedriver path:")
+                if isfile(path):
+                    return webdriver.Chrome(path)
+    else:
+        if is_file(phantomjs_path):
+            return webdriver.PhantomJS(phantomjs_path)
+        else:
+            while True:
+                print("Your PhantomJS path doesn't appear to exist")
+                path = input("Enter phantomJS path:")
+                if isfile(path):
+                    return webdriver.PhantomJS(path)
 
+def copy(src, dst):
+    shutil.copyfile(src, dst)
 
 def help():
     print("Here are the current functions for common.py:")
@@ -59,6 +93,69 @@ zip_print(arg_list) - prints a zipped list with two variables. so like for a, b 
 
 ''')
 
+def flatten_list(lists):
+    """
+    Returns a flatten list from a list of lists.
+        INPUT: [[1,2,3,4], [1,2,3], [3]]
+        OUTPUT: [1, 2, 3, 4, 1, 2, 3, 3]
+    :param lists: a 2D list
+    :return: a flatten list with all those elements in one list.
+    """
+    flat_list = []
+    for sublist in lists:
+        for item in sublist:
+            flat_list.append(item)
+    return flat_list
+
+def clock_start():
+    """
+    Starts the clock
+    --Usage:
+        import common
+        start = common.clock_start()
+        ----YOUR PROGRAM------
+        common.clock_end(start)
+
+
+    :return: the time the program starts
+    """
+    start = clock()
+    print("Starting", start)
+    return start
+
+def clock_end(start):
+    """
+    Ends the clock
+    --Usage:
+        import common
+        start = common.clock_start()
+        ----YOUR PROGRAM------
+        common.clock_end(start)
+    :return: the time the program took - str
+    """
+    end = clock()
+    print("Time Taken: {}".format(end - start))
+    return "Time Taken: {}".format(end - start)
+
+def info(*objs):
+    """
+    A method that prints out 1 or more object's properties so far including:
+        - The object itself
+        - Type of the object
+        - Length of the object
+
+    Sort of makes common.lengths() method obsolete.
+    :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
+    :return: None - prints the results
+    """
+    for object in objs:
+        if type(object) in [int, float]:
+            print("Object is an int/float/long -- and therefore has no length")
+            print('Length of your object converted to a string is:', len(str(object)))
+        else:
+            print('-' * 30)
+            print("Object:", object, "\nType:", type(object), "\nLength:", len(object))
+            print('-' * 30, '\n')
 
 def soup_write(soup, file_path, file_ext=".txt"):
     """
@@ -68,12 +165,12 @@ def soup_write(soup, file_path, file_ext=".txt"):
     :param file_ext: The extension for the file; default is a .txt
     :return: None; creates a file with the soup object
     """
+    from bs4 import BeautifulSoup
     html = soup.prettify("utf-8")
     with open(file_path + file_ext, "wb") as file:
         file.write(html)
 
     print("FILE PATH + file_ext =", file_path+file_ext)
-
 
 def find_all(soup, first, second, third):
     """
@@ -82,9 +179,15 @@ def find_all(soup, first, second, third):
     :param first: The first item to search for. Example: div
     :param second: the second aspect to search for. The key in the key:value pair. Example: class
     :param third: The third aspect, which is the value in the key: value pair. Example: <class-name>
+        Example:
+            BeautifulSoup(<url>,<parser>).find_all("div", {"class": <"classname">})
+            is simplifed with this method by using:
+            results = common.find_all(soup_obj, "div", "class", "<classname>")
+
     :return: a list of items found by the search.
     """
     #  returns a soup object with find_all
+    from bs4 import BeautifulSoup
     try:
         items = soup.find_all(first, {second:third})
     except Exception as error:
@@ -94,7 +197,6 @@ def find_all(soup, first, second, third):
         print("Didn't find anything!")
     return items
 
-
 def get_soup(url, parser="html.parser"):
     """
     A quicker way to create a BeautifulSoup object, just provide the url that needs to be parsed & a BS obj is returned
@@ -103,6 +205,7 @@ def get_soup(url, parser="html.parser"):
     :TODO: if url (needs to be renamed) is a file, open the file and create a bs obj on that file.
     :return: a BeautifulSoup object.
     """
+    from bs4 import BeautifulSoup
     #  given a url, a request object is created using the given url
     #  then a soup object is created using the page object, and the soup object is returned
     page = requests.get(url).content
@@ -112,7 +215,6 @@ def get_soup(url, parser="html.parser"):
         print("Error with parser?")
         soup = BeautifulSoup(page)
     return soup
-
 
 def check_valid_site(url, print_status=False):
     """
@@ -145,7 +247,6 @@ def lengths(*args):
         i, obj = item
         print("Item", i, obj, "has a length of:", len(obj))
 
-
 def create_desktop_folder(folder_name):
     """
     Creates a folder on the user's desktop
@@ -154,8 +255,7 @@ def create_desktop_folder(folder_name):
     """
     #  given a folder name, a folder with that name is created on the Desktop
     user_home = os.path.expanduser('~')
-    sep = os.sep
-    folder_path = user_home + sep + 'Desktop' + sep + folder_name + sep
+    folder_path = os.path.join(user_home, 'Desktop', folder_name, '')
     if not is_dir(folder_path):
         print("Creating Folder at: " + folder_path)
         os.makedirs(folder_path)
@@ -168,27 +268,26 @@ def get_desktop():
     gets a path to the user's desktop
     :return: A path to the user's desktop
     """
-    return os.path.expanduser('~') + os.sep + 'Desktop' + os.sep
+    return os.path.join(os.path.expanduser('~'), 'Desktop', '')
 
-
-def create_folder(path_to_create, folder_name):
+def create_folder(path_to_create, folder_name, alert_message=False):
     """
-    Creates a folder where ever the user wants
+    Checks if a directory exists. If it does, simply return the path.
+    If it doesn't, make the directory and then return the path.
     :param path_to_create: The 'root' directory of where the user wants the folder to be
     :param folder_name: the name of the folder to be created
     :return: a path to the newly created folder
     """
-    sep = os.sep
-    #  create a new folder given a directory, and call the folder by the passed folder_name
-    new_path = path_to_create + sep  + folder_name + sep
+
+    new_path = os.path.join(path_to_create, folder_name, '')
     if not is_dir(new_path):
         print("Creating Folder at: " + new_path)
         os.makedirs(new_path)
     else:
-        print("Path already exists!")
+        if alert_message:
+            print("Path already exists!")
 
     return new_path
-
 
 def read_file(file_path):
     """
@@ -199,9 +298,9 @@ def read_file(file_path):
             test
             testword_1
 
-        a list containting hey, test, testword_1 would be returned.
-    :param file_path:
-    :return:
+        [hey, test, testword_1] would be returned. - type() == list
+    :param file_path: the textfile to read in from
+    :return: a list of items from the textfile
     """
     #  reads from a textfile into a list, and returns that list
     if is_file(file_path):
@@ -213,7 +312,6 @@ def read_file(file_path):
         return read_file(input("New file path: "))
 
     return file_list
-
 
 def read_csv(file_path):
     #  reads from a (csv)textfile into a list, and returns that list
@@ -228,21 +326,31 @@ def read_csv(file_path):
 
     return file_list
 
+def write_json(data, file_path, write_mode='w', indent=2):
+    """
+    :param data: The data to write to a file
+    :param file_path: Where the file should be written
+    :param write_mode: w for write, a for append.
+    :return: N/A
+    """
+    with open(file_path, write_mode) as f:
+        json.dump(data, f, indent=indent)
 
 def read_json(file_path):
     """
-    Needs to be modified to support the builtin json library.
+    Reads json from a file.
     :param file_path:
     :return:
     """
-    with open(file_path, 'r') as f:
-        try:
-            data = simplejson.load(f)
-        except ValueError:
-            print("Value Error")
-            data = {}
-    return data
+    if is_file(file_path):
+        with open(file_path) as json_data:
+            data = json.load(json_data)
+            return data
+    else:
+        print("Your .JSON file doesn't appear to exist. Enter a new path")
+        return read_json(input("New file path:"))
 
+    return data
 
 def write_to_file(write_list, file_path, write_mode='a'):
     #  writes a list to a textfile
@@ -255,12 +363,7 @@ def write_to_file(write_list, file_path, write_mode='a'):
         writer = open(file_path, write_mode, encoding="utf-8")
         writer.write(write_list)
 
-def write_json(data, file_path, write_mode='w'):
-    with open(file_path, write_mode) as f:
-        simplejson.dump(data, f)
-
-
-def files_in_directory(folder_path, return_full_path=False):
+def files_in_directory(folder_path, return_full_path=True):
     #  returns a list of the files in a directory
     if is_dir(folder_path):
         files = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
@@ -269,55 +372,54 @@ def files_in_directory(folder_path, return_full_path=False):
         else:
             full_files = []
             for item in files:
-                full_files.append(folder_path + "\\" + item)
+                full_files.append(folder_path + sep + item)
             return full_files
     else:
         print("Error - not a directory! - returning an empty list!")
         return []
 
-
 def download(to_save, save_path):
     #  to_save: url to save
     #  save_path: directory + file name + file extension 
     try:
-        urllib.urlretrieve(to_save, save_path)
-        print(to_save + " was saved to: " + save_path)
+        if is_file(save_path):
+            print('Item already exists!')
+        else:
+            urllib.request.urlretrieve(to_save, save_path)
+            print(to_save + " was saved to: " + save_path)
     except:
         print("Error - Could not save!")
-
+        print("File:", to_save, "\nPath:",save_path, end='\n\n')
+        print("Unexpected error:", sys.exc_info()[0])
 
 def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
     new_text = ""
     for c in remove_characters:
         new_text = original_text.replace(c, replace_character)
     return new_text
-        
 
 def print_text_file(text_file):
     #  prints out a textfile
     eazy_print(read_file(text_file))
 
-
-def view_text_file(text_file):
-    #  alternate named, that prints out a text file
-    print_text_file(text_file)
-
-
 def is_file(file_path):
     #  checks if a given path is actually a file
     return os.path.isfile(file_path)
-
 
 def is_dir(folder_path):
     #  checks if a given folder path is actually a folder
     return os.path.isdir(folder_path)
 
-
 def print_list(arg_list):
-    #  eazy print - good for testing.
+    """
+    Method for looping through and printing a list.
+    Good for testing.
+    Can be called with eazy_print, ez_print, ez
+    :param arg_list: The list to be printed
+    :return: N/A
+    """
     for item in arg_list:
         print(item)
-
 
 def index_print(arg_list, index_offset=0):
     #  prints the index, along with the item
@@ -325,25 +427,31 @@ def index_print(arg_list, index_offset=0):
     for count, element in enumerate(arg_list, index_offset):
         print(count, element)
 
-
-def ez_print(arg_list):
-    #  alternate print list
-    print_list(arg_list)
-
-
-def ez(arg_list):
-    #  alternate print list
-    print_list(arg_list)
-
-
-def eazy_print(arg_list):
-    #  alternate print list
-    print_list(arg_list)
-
-
 def zip_print(arg_list):
     #  prints a 2 item zipped list
     for a, b in arg_list:
         print(a, b)
 
+def random_name(ext, file_length=6):
+    """
 
+    :param ext: the file extension, .mp4, .jpg, etc
+    :param file_length: how long to make the filename
+    :return: a random file name
+    """
+    file_name = ''
+    letters = string.ascii_lowercase
+    for i in range(file_length):
+        file_name += random.choice(letters)
+
+    file_name += str(random.randint(0,100)) + ext
+
+    return file_name
+
+#  Alternative Names -- since I forget what I call my other functions
+eazy_print = print_list
+ez_print = print_list
+ez = print_list
+view_text_file = print_text_file
+get_driver = create_driver
+create_soup = get_soup
