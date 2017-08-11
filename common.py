@@ -49,49 +49,6 @@ def create_driver(use_chrome=True, chromedriver_path=r'C:\Users\xavi\AppData\Loc
 def copy(src, dst):
     shutil.copyfile(src, dst)
 
-def help():
-    print("Here are the current functions for common.py:")
-    print('''get_soup(url, parser="html.parser - given a url, a request object is created using the given url.
-
-
-soup_write(soup, file_path, file_ext=".txt") - writes a BeautifulSoup Object to a textfile to be saved later
-
-soup_find_all(soup, first, second, third) - returns a find all request on a soup object
-
-check_valid_site(url) - given a url, checks if the URL is a valid site
-
-create_desktop_folder(folder_name) - creates a folder on the desktop *returns path to the new folder
-
-create_folder(path_to_create, folder_name) - creates a folder with a passed path and name *returns new path
-
-read_file(file_path) - reads a textfile with a passed path *returns list of the textfile
-
-def read_csv(file_path) - reads a CSV textfile *returns a list
-
-read_json(file_path) - Currently doesn't work - but returns a JSON object
-
-write_to_file(write_list, file_path, write_mode='a') - writes a list to a textfile 
-
-write_json(data, file_path, write_mode='w') - 
-
-files_in_directory(folder_path, return_full_path=False) - 
-
-download(to_save, save_path) - 
-
-replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character="") - 
-
-print_text_file(text_file) - prints a textfile with a passed path
-
-is_file(file_path) - checks if a passed path is an actual file *returns Boolean
-
-is_dir(folder_path) - checks if a passed path is an actual directory *returns Boolean
-
-print_list(arg_list) - prints a list - can also use ez_print(list) or eazy_print(list)
-
-zip_print(arg_list) - prints a zipped list with two variables. so like for a, b in arg_list
-
-
-''')
 
 def flatten_list(lists):
     """
