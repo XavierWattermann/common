@@ -163,11 +163,12 @@ def get_soup(url, parser="html.parser"):
     :return: a BeautifulSoup object.
     """
     from bs4 import BeautifulSoup
-    #  given a url, a request object is created using the given url
-    #  then a soup object is created using the page object, and the soup object is returned
-    page = requests.get(url).content
     try:
-        soup = BeautifulSoup(page, parser)
+        if isfile(url):  # the 'url' is a file, try to parse it
+            soup = BeautifulSoup(open(url), parser)
+        else:
+            page = requests.get(url).content
+            soup = BeautifulSoup(page, parser)
     except(Exception):
         print("Error with parser?")
         soup = BeautifulSoup(page)
@@ -200,8 +201,7 @@ def lengths(*args):
     :param args: multiple argument for N amount of objects (usually lists)
     :return:
     """
-    for item in enumerate(args):
-        i, obj = item
+    for i, obj in enumerate(args):
         print("Item", i, obj, "has a length of:", len(obj))
 
 def create_desktop_folder(folder_name):
@@ -412,3 +412,5 @@ ez = print_list
 view_text_file = print_text_file
 get_driver = create_driver
 create_soup = get_soup
+get_files_in_directory = files_in_directory
+get_files = files_in_directory
