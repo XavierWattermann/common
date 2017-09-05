@@ -15,8 +15,8 @@ import json
 sep = os.sep
 cwd = os.getcwd()
 
-def create_driver(use_chrome=True, chromedriver_path=r'C:\Users\xavi\AppData\Local\Continuum\Anaconda3\chromedriver.exe',
-                  phantomjs_path=r"C:\Users\xavi\AppData\Local\Continuum\Anaconda3\phantomjs.exe"):
+def create_driver(use_chrome=True, chromedriver_path=r'<chromedriver_path>',
+                  phantomjs_path=r"<phantomJS_path>"):
     """
     Creates a webdriver using Selenium
     :param use_chrome: True - use a chromedriver, False - Use PhantomJS
