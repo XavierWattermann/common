@@ -1,18 +1,28 @@
-# common.py
-A collection of commonly used Python functions/methods. Useful for quick prototyping/testing.
+# common
+## Description
+common.py is a list of frequently used Python functions, such as reading/writing to a file, creating folders, etc.
 
-Should be Python 2.x and 3.x compatiable. 
+## Functions:
 
-Includes support for external libraries including: Beautifulsoup, requests, selenium
+### create_driver()
+Creates a webdriver using a ChromeDriver or PhantomJS.
+##### Dependices
+ - [selenium](http://www.seleniumhq.org/)
+ - [PhantomJS](http://phantomjs.org/)
+ - [ChromeDriver](https://sites.google.com/a/chromium.org/chromedriver/)
+ 
+### get_soup(url)
+Creates a BeautifulSoup object, given a passed url.
+##### Parameters
+url - the url to be parsed. 
+##### Dependices
+- [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)
 
+### find_all(soup, first, second, third)
+A wrapper for BeautifulSoup.find_all(first: {second: third})
+##### Parameters
+soup - A BeautifulSoup Object
 
-Some Methods Included:
-
-get_soup(url) - Returns a BeautifulSoup Object with a passed URL.
-
-create_desktop_folder(folder_name) - Creates a folder on the user's desktop
-
-read_file(file_path) - Returns a list of the items in a textfile seperated by newlines
-
-write_to_file(write_list, file_path) - Writes a list to a textfile (seperated by newlines)
-
+first, second, third - items to search for
+##### Dependices
+- [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/)
