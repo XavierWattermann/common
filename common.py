@@ -1,4 +1,3 @@
-import requests
 import os
 from os import listdir
 from os.path import isfile, join
@@ -11,6 +10,10 @@ import sys
 import random
 import string
 import json
+from multiprocessing.dummy import Pool as ThreadPool
+
+import requests
+
 
 sep = os.sep
 cwd = os.getcwd()
@@ -49,6 +52,10 @@ def create_driver(use_chrome=True, chromedriver_path=r'<chromedriver_path>',
 def copy(src, dst):
     shutil.copyfile(src, dst)
 
+def is_dir(folder_path):
+    #  checks if a given folder path is actually a folder
+    return os.path.isdir(folder_path)
+
 
 def flatten_list(lists):
     """
@@ -72,8 +79,6 @@ def clock_start():
         start = common.clock_start()
         ----YOUR PROGRAM------
         common.clock_end(start)
-
-
     :return: the time the program starts
     """
     start = clock()
@@ -100,7 +105,6 @@ def info(*objs):
         - The object itself
         - Type of the object
         - Length of the object
-
     Sort of makes common.lengths() method obsolete.
     :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
     :return: None - prints the results
@@ -140,7 +144,6 @@ def find_all(soup, first, second, third):
             BeautifulSoup(<url>,<parser>).find_all("div", {"class": <"classname">})
             is simplifed with this method by using:
             results = common.find_all(soup_obj, "div", "class", "<classname>")
-
     :return: a list of items found by the search.
     """
     #  returns a soup object with find_all
@@ -204,7 +207,7 @@ def lengths(*args):
     for i, obj in enumerate(args):
         print("Item", i, obj, "has a length of:", len(obj))
 
-def create_desktop_folder(folder_name):
+def create_desktop_folder(folder_name, alert_message=True):
     """
     Creates a folder on the user's desktop
     :param folder_name: the name of the folder on the desktop
@@ -217,7 +220,8 @@ def create_desktop_folder(folder_name):
         print("Creating Folder at: " + folder_path)
         os.makedirs(folder_path)
     else:
-        print("The folder appears to already exist!")
+        if alert_message:
+            print("The folder appears to already exist!")
     return folder_path
 
 def get_desktop():
@@ -254,7 +258,6 @@ def read_file(file_path):
             hey
             test
             testword_1
-
         [hey, test, testword_1] would be returned. - type() == list
     :param file_path: the textfile to read in from
     :return: a list of items from the textfile
@@ -336,8 +339,19 @@ def files_in_directory(folder_path, return_full_path=True):
         return []
 
 def download(to_save, save_path):
-    #  to_save: url to save
-    #  save_path: directory + file name + file extension 
+    """
+    Downloads a file from the internet using urllib.request.urlretrieve
+
+    File needs to be a direct link to an image, .mp3, .mp4, etc
+    The save_path needs to be the FULL path of where to save the file.
+
+    So if you wanted to save <URL> to a folder on your desktop you would do:
+        common.download(URL, 'home/USER/Desktop/FOLDER/file_name.EXTENSION')
+
+    :param to_save: the URL of the file to save
+    :param save_path: Where to save the file
+    :return: None
+    """
     try:
         if is_file(save_path):
             print('Item already exists!')
@@ -346,8 +360,64 @@ def download(to_save, save_path):
             print(to_save + " was saved to: " + save_path)
     except:
         print("Error - Could not save!")
-        print("File:", to_save, "\nPath:",save_path, end='\n\n')
+        print("File:", to_save, "\nPath:",save_path, '\n')
         print("Unexpected error:", sys.exc_info()[0])
+
+def ez_download(list_of_items, save_directory=None, multithreaded=False):
+    """
+    Eazy way to download a list of items.
+    For a multithreaded approach, multithread_download can be called
+    :param list_of_items: a list to loop through and download
+    :param save_directory: where to save the items, if None is provided, saves on the desktop
+    :param multithreaded: if True, calls multithread_download
+    :return: N/A
+    """
+    if not save_directory:  # no save directory given means we save it to the desktop
+        save_directory = create_desktop_folder('python_download')
+
+    if multithreaded:
+        multithread_download(list_of_urls=list_of_items, save_directory=save_directory)
+    else:
+        for item in list_of_items:
+            save_path = os.path.join(save_directory, os.path.split(item)[1])
+            download(to_save=item, save_path=save_path)
+
+
+
+
+def multithread_download(list_of_urls, threads=6, save_directory=None):
+    """
+    Uses Python's multiprocessing module to call common.download with multiple threads
+    Requires that the passed list of items contains direct links to media
+
+    How it works:
+    The pool object has a .map() function, which typically takes two parameters
+        - a function
+        - a list
+    Map then takes each item from the list, and applies it to the function.
+
+    In this case, we're taking each file from the list, and calling common.download() to download the file.
+
+    Common.download() also takes two parameters:
+        - the file to download
+        - the save directory
+
+    So I use a lambda function to take the file from the list, and call common.download() with that file,
+    and the passed save_directory and splitting the file with os.path.split(FILE)[1] to get the tail of the file,
+    which is hopefully NAME_OF_FILE.<EXTENSION>
+
+
+    :param list_of_urls: a list of urls(that are direct links to media(.jpg, .mp3, etc)) that can be saved with
+    urllib.request.urlretrieve aka common.download()
+    :param threads: the number of threads to use; by default 6 is used
+    :param save_directory: where to save the items
+    :return: None
+    """
+    if not save_directory:
+        save_directory = create_desktop_folder('multithread_download')
+    
+    pool = ThreadPool(threads)
+    pool.map(lambda file: download(file, os.path.join(save_directory, os.path.split(file)[1])), list_of_urls)
 
 def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
     new_text = ""
@@ -363,9 +433,6 @@ def is_file(file_path):
     #  checks if a given path is actually a file
     return os.path.isfile(file_path)
 
-def is_dir(folder_path):
-    #  checks if a given folder path is actually a folder
-    return os.path.isdir(folder_path)
 
 def print_list(arg_list):
     """
@@ -391,7 +458,6 @@ def zip_print(arg_list):
 
 def random_name(ext, file_length=6):
     """
-
     :param ext: the file extension, .mp4, .jpg, etc
     :param file_length: how long to make the filename
     :return: a random file name
@@ -407,6 +473,7 @@ def random_name(ext, file_length=6):
 
 #  Alternative Names -- since I forget what I call my other functions
 eazy_print = print_list
+easy_print = print_list
 ez_print = print_list
 ez = print_list
 view_text_file = print_text_file
@@ -414,3 +481,4 @@ get_driver = create_driver
 create_soup = get_soup
 get_files_in_directory = files_in_directory
 get_files = files_in_directory
+easy_download = ez_download
