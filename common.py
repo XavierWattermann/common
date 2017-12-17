@@ -52,6 +52,39 @@ def create_driver(use_chrome=True, chromedriver_path=r'<chromedriver_path>',
 def copy(src, dst):
     shutil.copyfile(src, dst)
 
+
+def copy_to_desktop(file_path, folder_name=None):
+    """
+    Allows a user to copy a file, given it's file_path to the desktop.
+        Things to add:
+    - Better doc string
+    - Allow file_path to be a LIST of file paths, so the user doesn't have to loop through themseleves
+            But if they pass just a single file path, that will also work.
+    - check if the file is a valid file
+    - check if it's a directory
+    - multithread copy?
+    - better error checking
+    - overwrite functionally, as a keyword argument.
+
+    """
+
+    if folder_name is None:
+        folder_name = common.get_desktop()
+    else:
+        folder_name = common.create_desktop_folder(folder_name, alert_message=False)
+
+    save_directory = os.path.join(folder_name, os.path.basename(file_path))
+
+    if not common.is_file(file_path):
+        print("{} is not a file!".format(file_path))
+        return
+
+    try:
+        common.copy(file_path, save_directory)
+        print("File: {}, was copied to: {}".format(file_path, save_directory))
+    except shutil.SameFileError:
+        print("File is already there!")
+
 def is_dir(folder_path):
     #  checks if a given folder path is actually a folder
     return os.path.isdir(folder_path)
@@ -214,15 +247,8 @@ def create_desktop_folder(folder_name, alert_message=True):
     :return: the path to the new folder.
     """
     #  given a folder name, a folder with that name is created on the Desktop
-    user_home = os.path.expanduser('~')
-    folder_path = os.path.join(user_home, 'Desktop', folder_name, '')
-    if not is_dir(folder_path):
-        print("Creating Folder at: " + folder_path)
-        os.makedirs(folder_path)
-    else:
-        if alert_message:
-            print("The folder appears to already exist!")
-    return folder_path
+    return create_folder(get_desktop(), folder_name, alert_message=alert_message)
+
 
 def get_desktop():
     """
@@ -470,6 +496,84 @@ def random_name(ext, file_length=6):
     file_name += str(random.randint(0,100)) + ext
 
     return file_name
+
+
+def continuous_input(message=None, end_word='stop'):
+    from six.moves import input  # support python2
+    """
+    Gets multiple input from the user until they enter the 'end_word'
+
+    Returns a list of user inputted values
+    """
+    if not message:
+        message = "Please enter items and enter '{}' to quit:".format(end_word)
+
+    items = []
+    while True:
+        temp_item = input(message)
+        if temp_item == end_word:
+            break
+        else:
+            items.append(temp_item)
+    return items
+
+
+def list_choice(list_of_items):
+    from six.moves import input  # support python2
+    """
+    Loops through a list of items and allows the user to select the index to return that item in the list
+    Good for quickly making menus
+    """
+
+    index_print(list_of_items)
+    choice = input("Enter the index of the item to return\n>>>")
+    try:
+        item_to_return = list_of_items[int(choice)]
+        return item_to_return
+    except IndexError:
+        print("The index you provided is not in the list")
+        print("Your list has an a length of {}".format(len(list_of_items)))
+    except ValueError:
+        print("You didn't enter an integer!")
+
+    return list_choice(list_of_items)  # if this reaches, it means we got invalid input
+
+
+def sleep(time_to_sleep, use_minutes=False, message=None, end_message=None):
+    if type(time_to_sleep) not in [int, float]:
+        print("time_to_sleep variable needs to be an int or a float!")
+        return
+    if use_minutes:
+        time_to_sleep *= 60
+    if message is None:
+        message = "Sleeping for {} seconds".format(time_to_sleep)
+    if end_message is None:
+        end_message = "Finished Sleeping"
+
+    print(message)
+    time.sleep(time_to_sleep)
+    print(end_message)
+
+
+def time_print(user_list, time_to_sleep=1, use_minutes=False, sleep_message=False):
+    """
+    Prints a user's list with sleeping for N number of seconds between each item in the list
+
+    I think I've only needed to do something like this once for testing...
+    I can't really think of a use-case for this right now...
+    """
+    if not isinstance(time_to_sleep, (int, float)):
+        print("time_to_sleep variable needs to be an int or a float!")
+        return
+    if use_minutes:
+        time_to_sleep *= 60
+
+    for item in user_list:
+        print(item)
+        if sleep_message:
+            print("\tSleeping for {} seconds".format(time_to_sleep))
+        time.sleep(time_to_sleep)
+
 
 #  Alternative Names -- since I forget what I call my other functions
 eazy_print = print_list
