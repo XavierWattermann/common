@@ -5,6 +5,7 @@ import urllib
 import csv
 import time
 from time import clock
+from collections import OrderedDict
 import shutil
 import sys
 import random
@@ -575,6 +576,40 @@ def time_print(user_list, time_to_sleep=1, use_minutes=False, sleep_message=Fals
         if sleep_message:
             print("\tSleeping for {} seconds".format(time_to_sleep))
         time.sleep(time_to_sleep)
+
+
+#  SET OPERATIONS ON LISTS
+
+def unique_items(user_list, preserve_order=False):
+    """
+    removes duplicates elements from a list, by simply making it a set and then a list again
+    :param user_list: the user's list that the unique items will be returned
+    :preserve_order: boolean - if the order matters for your list this should be set to True
+    :return: a list with only unique items; no duplicates
+    :rtype: list
+    """
+    if not isinstance(user_list, list):  # add tuples?
+        print("you must pass a list! Returning None")
+        return None
+
+    if preserve_order:
+        return list(OrderedDict.fromkeys(user_list))
+    else:
+        return list(set(user_list))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #  Alternative Names -- since I forget what I call my other functions
