@@ -192,20 +192,23 @@ def get_soup(url, parser="html.parser"):
     A quicker way to create a BeautifulSoup object, just provide the url that needs to be parsed & a BS obj is returned
     :param url: The url of the site that needs to be parsed.
     :param parser: the parser to use, by default html.parser (built into BS) is used. Other options are xml, lxml.
-    :TODO: if url (needs to be renamed) is a file, open the file and create a bs obj on that file.
+    :TODO: Do a better check to see if the passed 'url' is a selenium webdriver
     :return: a BeautifulSoup object.
     """
     from bs4 import BeautifulSoup
     import requests
     try:
-        if isfile(url):  # the 'url' is a file, try to parse it
+        if 'webdriver' in str(type(url)):  # a pretty weak check to see if 'url' is really a selenium webdriver
+            soup = BeautifulSoup(url.page_source, parser)  # we can use a webdriver's page_source to get the content of the current site.
+        elif isfile(url):  # the url is a file, try to open it and parse.
             soup = BeautifulSoup(open(url), parser)
         else:
             page = requests.get(url).content
             soup = BeautifulSoup(page, parser)
-    except(Exception):
-        print("Error with parser?")
-        soup = BeautifulSoup(page)
+    except Exception as e:
+        print("An error has occurred with common.get_soup(). Here is the error message: {}".format(e))
+        return None
+
     return soup
 
 def check_valid_site(url, print_status=False):
