@@ -12,9 +12,6 @@ import string
 import json
 from multiprocessing.dummy import Pool as ThreadPool
 
-import requests
-
-
 sep = os.sep
 cwd = os.getcwd()
 
@@ -199,6 +196,7 @@ def get_soup(url, parser="html.parser"):
     :return: a BeautifulSoup object.
     """
     from bs4 import BeautifulSoup
+    import requests
     try:
         if isfile(url):  # the 'url' is a file, try to parse it
             soup = BeautifulSoup(open(url), parser)
@@ -217,6 +215,7 @@ def check_valid_site(url, print_status=False):
     :param print_status: Print if the passed site is valid or not
     :return: True(site is valid) or False(site isn't valid; 404)
     """
+    import requests
     try:
         request = requests.get(url)
         status_code = request.status_code
