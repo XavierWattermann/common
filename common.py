@@ -597,15 +597,23 @@ def unique_items(user_list, preserve_order=False):
     else:
         return list(set(user_list))
 
+def list_union(list1, list2, *extra_lists, preserve_order=False):
+    """
+    Performs a set union operation on two (or more lists).
+    A union operation takes the common (hey that's the name of this module!) elements between two (sets) and combines them.
+    So the union between {1,2} and {2,3} = {1,2,3}
 
+    This function isn't particularly useful, since lists have a function .extend() which satisifies the main purpose of this function.
+    One benefit may be the benefit of removing duplicates from the unioned list.
 
+    ADD PARAMS HERE
+    """
+    union_list = list(set(list1).union(list2))
+    if extra_lists:
+    #    for sub_list in extra_lists:
+            
 
-
-
-
-
-
-
+        
 
 
 
