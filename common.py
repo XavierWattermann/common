@@ -382,6 +382,7 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
     folder_list = []
     if not is_dir(folder_path):
         print("{} is not a folder! Returning an empty list".format(folder_path))
+        return []
     if folder_path == '.':
         folder_path = os.getcwd()
     for current_folder, subdirectories, files in os.walk(folder_path):
@@ -390,7 +391,7 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
                 folder_list.append(os.path.join(current_folder, sub_path))
             else:
                 folder_list.append(sub_path)
-        if not recursive:  # this means we only wan the current directory's subdirectories; nothing more
+        if not recursive:  # this means we only want the current directory's subdirectories; nothing more
             break
     return folder_list
 def download(to_save, save_path):
