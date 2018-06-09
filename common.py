@@ -140,14 +140,14 @@ def info(*objs):
     :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
     :return: None - prints the results
     """
-    for object in objs:
-        if type(object) in [int, float]:
+    for obj in objs:
+        if type(obj) in [int, float]:
             print("Object is an int/float/long -- and therefore has no length")
-            print('Length of your object converted to a string is:', len(str(object)))
+            print('Length of your object converted to a string is:', len(str(obj)))
         else:
-            print('-' * 30)
-            print("Object:", object, "\nType:", type(object), "\nLength:", len(object))
-            print('-' * 30, '\n')
+            print('-' * 100)
+            print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            print('-' * 100, '\n')
 
 def soup_write(soup, file_path, file_ext=".txt"):
     """
@@ -611,7 +611,7 @@ def list_union(list1, list2, *extra_lists, preserve_order=False):
     union_list = list(set(list1).union(list2))
     if extra_lists:
     #    for sub_list in extra_lists:
-            
+        pass            
 
         
 
