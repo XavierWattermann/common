@@ -346,21 +346,53 @@ def write_to_file(write_list, file_path, write_mode='a'):
         writer = open(file_path, write_mode, encoding="utf-8")
         writer.write(write_list)
 
-def files_in_directory(folder_path, return_full_path=True):
-    #  returns a list of the files in a directory
-    if is_dir(folder_path):
-        files = [f for f in listdir(folder_path) if isfile(join(folder_path, f))]
-        if not return_full_path:
-            return files
-        else:
-            full_files = []
-            for item in files:
-                full_files.append(folder_path + sep + item)
-            return full_files
-    else:
-        print("Error - not a directory! - returning an empty list!")
+def files_in_directory(folder_path, recursive=False, return_full_path=True):
+    """
+    Returns the files in a given directory.
+    By default, only returns the files in the immediate directory(folder_path). Setting recursive to True, will get all files 
+    :param folder_path: the path to look for files
+    :param recursive: to search in the folder_path for any subfolders to get more files
+    :param return_full_path: return the absolute path for each file. Usually desired, especially for recursive mode.
+    :return: a list of file paths
+    :rtype: list
+    """
+    file_list = []
+
+    if not is_dir(folder_path):
+        print("{} is not a folder! - Returning an empty list".format(folder_path))
         return []
 
+    for current_folder, subdirectories, files in os.walk(folder_path):
+        for file_path in files:
+            if return_full_path:
+                file_list.append(os.path.join(current_folder, file_path))
+            else:
+                file_list.append(file_path)
+        if not recursive:  # this means we only want the current directory's file; nothing more
+            break
+    return file_list
+
+
+def folders_in_directory(folder_path, recursive=False, return_full_path=True):
+    """
+    Similar to files_in_directory(), this function returns the folder paths in a given directory.
+    By default, only returns the immediate subdirectories in the folder_path. Setting recursive to True, will get all sub folders.
+    TODO: Add parameters comments
+    """
+    folder_list = []
+    if not is_dir(folder_path):
+        print("{} is not a folder! Returning an empty list".format(folder_path))
+    if folder_path == '.':
+        folder_path = os.getcwd()
+    for current_folder, subdirectories, files in os.walk(folder_path):
+        for sub_path in subdirectories:
+            if return_full_path:
+                folder_list.append(os.path.join(current_folder, sub_path))
+            else:
+                folder_list.append(sub_path)
+        if not recursive:  # this means we only wan the current directory's subdirectories; nothing more
+            break
+    return folder_list
 def download(to_save, save_path):
     """
     Downloads a file from the internet using urllib.request.urlretrieve
@@ -624,4 +656,6 @@ get_driver = create_driver
 create_soup = get_soup
 get_files_in_directory = files_in_directory
 get_files = files_in_directory
+get_folders = folders_in_directory
+get_folders_in_directory = folders_in_directory
 easy_download = ez_download
