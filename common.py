@@ -16,36 +16,30 @@ from multiprocessing.dummy import Pool as ThreadPool
 sep = os.sep
 cwd = os.getcwd()
 
-def create_driver(use_chrome=True, chromedriver_path=r'<chromedriver_path>',
-                  phantomjs_path=r"<phantomJS_path>"):
+def create_driver(url=None, chromedriver_path=None, headless=False):
     """
-    Creates a webdriver using Selenium
-    :param use_chrome: True - use a chromedriver, False - Use PhantomJS
-    :param chromedriver_path: Path to the chromedriver
-    :param phantomjs_path: Path to PhantomJS
-    :return: a driver
+    Creates a chrome webdriver using Selenium
+    :param url: an optional argument to start the webdriver and go to a certain url
+    :param chromedriver_path: an optional argument to provide a file path to the chromedriver
+    :param headless: an optional boolean argument to start the driver headless.
+    :return: a selenium webdriver with Chrome
+    :rtype: selenium.webdriver.
     """
     from selenium import webdriver
-    from selenium.webdriver.common.keys import Keys
+    from selenium.webdriver.chrome.options import Options
+ 
+    chrome_options = Options()
+    if chromedriver_path and is_file(chromdrvier_path):
+        pass
 
-    if use_chrome:
-        if is_file(chromedriver_path):
-            return webdriver.Chrome(chromedriver_path)
-        else:
-            while True:
-                print("Your chromedriver path doesn't appear to exist")
-                path = input("Enter chromedriver path:")
-                if isfile(path):
-                    return webdriver.Chrome(path)
-    else:
-        if is_file(phantomjs_path):
-            return webdriver.PhantomJS(phantomjs_path)
-        else:
-            while True:
-                print("Your PhantomJS path doesn't appear to exist")
-                path = input("Enter phantomJS path:")
-                if isfile(path):
-                    return webdriver.PhantomJS(path)
+    if headless:
+        chrome_options.add_argument("--headless")
+
+    driver = webdriver.Chrome(chrome_options=chrome_options)
+    if url:
+        driver.get(url)
+
+    return driver
 
 def copy(src, dst):
     shutil.copyfile(src, dst)
