@@ -5,7 +5,7 @@ import urllib
 import csv
 import time
 from time import clock
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import shutil
 import sys
 import random
@@ -96,6 +96,19 @@ def flatten_list(lists):
             flat_list.append(item)
     return flat_list
 
+def frequency(iterable, most_common=None):
+    """
+    Simple "wrapper" for collections.Counter which returns a frequency on various iterables(? need a better param name for this)
+
+    Example:
+    "aaaabccc" => {'a': 4, 'b': 1, 'c': 3}
+
+    most_common is an optional param which returns N amount of items - int
+    TODO: have info call this function to also return a frequency of the object!
+    """
+    if most_common:
+        return Counter(iterable).most_common
+    return Counter(iterable)
 def clock_start():
     """
     Starts the clock
