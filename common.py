@@ -665,7 +665,21 @@ def list_intersection(list1, list2):
     pass
 
 
+def list_differnce(list1, list2):
+    """
+    Probably the most useful "list/set" operation for my use
+    Takes list1 and returns the items from list1 that AREN'T in list2.
+    so 
+    a = {1,2,3}
+    b = {2,3,4}
+    a - b == {1}
 
+    Useful if you have, for example, a bunch of urls to save. list1 could be the urls to save,
+    and list2 could be a list of urls that are already saved. Using the function would return a 
+    list of only new urls that need to be saved
+    """
+
+    return list(set(list1) - set(list2))
 
 
 #  Alternative Names -- since I forget what I call my other functions
