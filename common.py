@@ -322,15 +322,18 @@ def read_csv(file_path):
 
     return file_list
 
-def write_json(data, file_path, write_mode='w', indent=2):
+def write_json(data, file_path, write_mode='w', indent=2, print_message=False):
     """
     :param data: The data to write to a file
     :param file_path: Where the file should be written
     :param write_mode: w for write, a for append.
-    :return: N/A
+    :param print_message: boolean if a print message should be made if the file was written (default: false)
+    :return: None
     """
     with open(file_path, write_mode) as f:
         json.dump(data, f, indent=indent)
+        if print_message:
+            print("JSON file was written to: {}".format(file_path))
 
 def read_json(file_path):
     """
@@ -407,6 +410,8 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
         if not recursive:  # this means we only want the current directory's subdirectories; nothing more
             break
     return folder_list
+
+
 def download(to_save, save_path):
     """
     Downloads a file from the internet using urllib.request.urlretrieve
@@ -432,6 +437,7 @@ def download(to_save, save_path):
         print("File:", to_save, "\nPath:",save_path, '\n')
         print("Unexpected error:", sys.exc_info()[0])
 
+
 def ez_download(list_of_items, save_directory=None, multithreaded=False):
     """
     Eazy way to download a list of items.
@@ -450,8 +456,6 @@ def ez_download(list_of_items, save_directory=None, multithreaded=False):
         for item in list_of_items:
             save_path = os.path.join(save_directory, os.path.split(item)[1])
             download(to_save=item, save_path=save_path)
-
-
 
 
 def multithread_download(list_of_urls, threads=6, save_directory=None):
@@ -486,7 +490,7 @@ def multithread_download(list_of_urls, threads=6, save_directory=None):
         save_directory = create_desktop_folder('multithread_download')
     
     pool = ThreadPool(threads)
-    pool.map(lambda file: download(file, os.path.join(save_directory, os.path.split(file)[1])), list_of_urls)
+    pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])), list_of_urls)
 
 def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
     new_text = ""
@@ -593,9 +597,13 @@ def sleep(time_to_sleep, use_minutes=False, message=None, end_message=None):
     if end_message is None:
         end_message = "Finished Sleeping"
 
-    print(message)
+    if not message:  # if message is set to False, we don't print anything.
+        print(message)
+
     time.sleep(time_to_sleep)
-    print(end_message)
+
+    if not end_message: 
+        print(end_message)
 
 
 def time_print(user_list, time_to_sleep=1, use_minutes=False, sleep_message=False):
@@ -633,14 +641,14 @@ def unique_items(user_list, preserve_order=False):
         return None
 
     if preserve_order:
-        return list(OrderedDict.fromkeys(user_list))
+        return list(OrderedDict.fromkeys(user_list))  # may not need to do this in later versions of Python3
     else:
         return list(set(user_list))
 
 def list_union(list1, list2, *extra_lists, preserve_order=False):
     """
     Performs a set union operation on two (or more lists).
-    A union operation takes the common (hey that's the name of this module!) elements between two (sets) and combines them.
+    A union operation takes the elements in A and B and combines them.
     So the union between {1,2} and {2,3} = {1,2,3}
 
     This function isn't particularly useful, since lists have a function .extend() which satisifies the main purpose of this function.
@@ -653,8 +661,8 @@ def list_union(list1, list2, *extra_lists, preserve_order=False):
     #    for sub_list in extra_lists:
         pass            
 
-        
-
+def list_intersection(list1, list2):
+    pass
 
 
 
@@ -673,3 +681,4 @@ get_files = files_in_directory
 get_folders = folders_in_directory
 get_folders_in_directory = folders_in_directory
 easy_download = ez_download
+remove_duplicates = unique_items
