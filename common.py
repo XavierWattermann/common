@@ -30,6 +30,7 @@ def create_driver(url=None, chromedriver_path=None, headless=False):
  
     chrome_options = Options()
     if chromedriver_path and is_file(chromdrvier_path):
+        #  TODO: THIS
         pass
 
     if headless:
@@ -96,18 +97,18 @@ def flatten_list(lists):
             flat_list.append(item)
     return flat_list
 
-def frequency(iterable, most_common=None):
+def frequency(iterable, count=None):
     """
     Simple "wrapper" for collections.Counter which returns a frequency on various iterables(? need a better param name for this)
 
     Example:
     "aaaabccc" => {'a': 4, 'b': 1, 'c': 3}
 
-    most_common is an optional param which returns N amount of items - int
+    count is an optional param which returns N amount of items - int
     TODO: have info call this function to also return a frequency of the object!
     """
-    if most_common:
-        return Counter(iterable).most_common
+    if count and isinstance(count, int):
+        return Counter(iterable).most_common(count)
     return Counter(iterable)
 def clock_start():
     """
@@ -154,6 +155,9 @@ def info(*objs):
         else:
             print('-' * 100)
             print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            print("Frequency: {}".format(frequency(obj)))
+            if isinstance(obj, list):  # TODO: ALLOW THIS TO SUPPORT MORE DATA TYPES
+                print("Unique Items: {}".format(unique_items(obj)))
             print('-' * 100, '\n')
 
 def soup_write(soup, file_path, file_ext=".txt"):
@@ -191,7 +195,7 @@ def find_all(soup, first, second, third):
     except Exception as error:
         print("There was an error trying to find all", error)
         return None
-    if items == None or items == []:
+    if not items:
         print("Didn't find anything!")
     return items
 
@@ -208,7 +212,7 @@ def get_soup(url, parser="html.parser"):
     try:
         if 'webdriver' in str(type(url)):  # a pretty weak check to see if 'url' is really a selenium webdriver
             soup = BeautifulSoup(url.page_source, parser)  # we can use a webdriver's page_source to get the content of the current site.
-        elif isfile(url):  # the url is a file, try to open it and parse.
+        elif is_file(url):  # the url is a file, try to open it and parse.
             soup = BeautifulSoup(open(url), parser)
         else:
             page = requests.get(url).content
@@ -689,6 +693,8 @@ ez_print = print_list
 ez = print_list
 view_text_file = print_text_file
 get_driver = create_driver
+isdir = is_dir
+isfile = isfile
 create_soup = get_soup
 get_files_in_directory = files_in_directory
 get_files = files_in_directory
