@@ -29,7 +29,7 @@ def create_driver(url=None, chromedriver_path=None, headless=False):
     from selenium.webdriver.chrome.options import Options
  
     chrome_options = Options()
-    if chromedriver_path and is_file(chromdrvier_path):
+    if chromedriver_path and is_file(chromedriver_path):
         #  TODO: THIS
         pass
 
@@ -62,21 +62,22 @@ def copy_to_desktop(file_path, folder_name=None):
     """
 
     if folder_name is None:
-        folder_name = common.get_desktop()
+        folder_name = get_desktop()
     else:
-        folder_name = common.create_desktop_folder(folder_name, alert_message=False)
+        folder_name = create_desktop_folder(folder_name, alert_message=False)
 
     save_directory = os.path.join(folder_name, os.path.basename(file_path))
 
-    if not common.is_file(file_path):
+    if not is_file(file_path):
         print("{} is not a file!".format(file_path))
         return
 
     try:
-        common.copy(file_path, save_directory)
+        copy(file_path, save_directory)
         print("File: {}, was copied to: {}".format(file_path, save_directory))
     except shutil.SameFileError:
         print("File is already there!")
+
 
 def is_dir(folder_path):
     #  checks if a given folder path is actually a folder
@@ -97,6 +98,7 @@ def flatten_list(lists):
             flat_list.append(item)
     return flat_list
 
+
 def frequency(iterable, count=None):
     """
     Simple "wrapper" for collections.Counter which returns a frequency on various iterables(? need a better param name for this)
@@ -110,6 +112,8 @@ def frequency(iterable, count=None):
     if count and isinstance(count, int):
         return Counter(iterable).most_common(count)
     return Counter(iterable)
+
+
 def clock_start():
     """
     Starts the clock
@@ -124,6 +128,7 @@ def clock_start():
     print("Starting", start)
     return start
 
+
 def clock_end(start):
     """
     Ends the clock
@@ -137,6 +142,7 @@ def clock_end(start):
     end = clock()
     print("Time Taken: {}".format(end - start))
     return "Time Taken: {}".format(end - start)
+
 
 def info(*objs):
     """
@@ -160,6 +166,7 @@ def info(*objs):
                 print("Unique Items: {}".format(unique_items(obj)))
             print('-' * 100, '\n')
 
+
 def soup_write(soup, file_path, file_ext=".txt"):
     """
     Writes a BeautifulSoup object to a textfile
@@ -168,12 +175,12 @@ def soup_write(soup, file_path, file_ext=".txt"):
     :param file_ext: The extension for the file; default is a .txt
     :return: None; creates a file with the soup object
     """
-    from bs4 import BeautifulSoup
     html = soup.prettify("utf-8")
     with open(file_path + file_ext, "wb") as file:
         file.write(html)
 
     print("FILE PATH + file_ext =", file_path+file_ext)
+
 
 def find_all(soup, first, second, third):
     """
@@ -189,7 +196,6 @@ def find_all(soup, first, second, third):
     :return: a list of items found by the search.
     """
     #  returns a soup object with find_all
-    from bs4 import BeautifulSoup
     try:
         items = soup.find_all(first, {second:third})
     except Exception as error:
@@ -198,6 +204,7 @@ def find_all(soup, first, second, third):
     if not items:
         print("Didn't find anything!")
     return items
+
 
 def get_soup(url, parser="html.parser"):
     """
@@ -223,6 +230,7 @@ def get_soup(url, parser="html.parser"):
 
     return soup
 
+
 def check_valid_site(url, print_status=False):
     """
     Checks if a passed URL is valid. If the status code from the site isn't 200, than it isn't valid.
@@ -245,6 +253,7 @@ def check_valid_site(url, print_status=False):
     except:
         print("It broke on", url)
 
+
 def lengths(*args):
     """
     Returns the length of multiple objects. Good for testing.
@@ -253,6 +262,7 @@ def lengths(*args):
     """
     for i, obj in enumerate(args):
         print("Item", i, obj, "has a length of:", len(obj))
+
 
 def create_desktop_folder(folder_name, alert_message=True):
     """
@@ -270,6 +280,7 @@ def get_desktop():
     :return: A path to the user's desktop
     """
     return os.path.join(os.path.expanduser('~'), 'Desktop', '')
+
 
 def create_folder(path_to_create, folder_name, alert_message=False):
     """
@@ -289,6 +300,7 @@ def create_folder(path_to_create, folder_name, alert_message=False):
             print("Path already exists!")
 
     return new_path
+
 
 def read_file(file_path):
     """
@@ -313,6 +325,7 @@ def read_file(file_path):
 
     return file_list
 
+
 def read_csv(file_path):
     #  reads from a (csv)textfile into a list, and returns that list
     if is_file(file_path):
@@ -326,6 +339,7 @@ def read_csv(file_path):
 
     return file_list
 
+
 def write_json(data, file_path, write_mode='w', indent=2, print_message=False):
     """
     :param data: The data to write to a file
@@ -338,6 +352,7 @@ def write_json(data, file_path, write_mode='w', indent=2, print_message=False):
         json.dump(data, f, indent=indent)
         if print_message:
             print("JSON file was written to: {}".format(file_path))
+
 
 def read_json(file_path):
     """
@@ -353,7 +368,6 @@ def read_json(file_path):
         print("Your .JSON file doesn't appear to exist. Enter a new path")
         return read_json(input("New file path:"))
 
-    return data
 
 def write_to_file(write_list, file_path, write_mode='a'):
     #  writes a list to a textfile
@@ -365,6 +379,7 @@ def write_to_file(write_list, file_path, write_mode='a'):
         #  if you didn't pass a list, this will hopefully write whatever you passed anyways; ya goofed
         writer = open(file_path, write_mode, encoding="utf-8")
         writer.write(write_list)
+
 
 def files_in_directory(folder_path, recursive=False, return_full_path=True):
     """
@@ -496,15 +511,18 @@ def multithread_download(list_of_urls, threads=6, save_directory=None):
     pool = ThreadPool(threads)
     pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])), list_of_urls)
 
+
 def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
     new_text = ""
     for c in remove_characters:
         new_text = original_text.replace(c, replace_character)
     return new_text
 
+
 def print_text_file(text_file):
     #  prints out a textfile
     eazy_print(read_file(text_file))
+
 
 def is_file(file_path):
     #  checks if a given path is actually a file
@@ -522,16 +540,19 @@ def print_list(arg_list):
     for item in arg_list:
         print(item)
 
+
 def index_print(arg_list, index_offset=0):
     #  prints the index, along with the item
     #  index_offset: good for "human" stuff that starts at 1 and not 0
     for count, element in enumerate(arg_list, index_offset):
         print(count, element)
 
+
 def zip_print(arg_list):
     #  prints a 2 item zipped list
     for a, b in arg_list:
         print(a, b)
+
 
 def random_name(ext, file_length=6):
     """
@@ -649,6 +670,7 @@ def unique_items(user_list, preserve_order=False):
     else:
         return list(set(user_list))
 
+
 def list_union(list1, list2, *extra_lists, preserve_order=False):
     """
     Performs a set union operation on two (or more lists).
@@ -664,6 +686,7 @@ def list_union(list1, list2, *extra_lists, preserve_order=False):
     if extra_lists:
     #    for sub_list in extra_lists:
         pass            
+
 
 def list_intersection(list1, list2):
     pass
