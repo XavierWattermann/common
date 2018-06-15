@@ -1,20 +1,18 @@
-import os
-from os import listdir
-from os.path import isfile, join
-import urllib
-import csv
-import time
-from time import clock
 from collections import OrderedDict, Counter
-import shutil
-import sys
-import random
-import string
+import csv
 import json
-from multiprocessing.dummy import Pool as ThreadPool
+from multiprocessing.dummy import Pool
+import os
+import random
+import shutil
+import string
+import sys
+import time
+import urllib
 
 sep = os.sep
 cwd = os.getcwd()
+
 
 def create_driver(url=None, chromedriver_path=None, headless=False):
     """
@@ -41,6 +39,7 @@ def create_driver(url=None, chromedriver_path=None, headless=False):
         driver.get(url)
 
     return driver
+
 
 def copy(src, dst):
     shutil.copyfile(src, dst)
@@ -124,7 +123,7 @@ def clock_start():
         common.clock_end(start)
     :return: the time the program starts
     """
-    start = clock()
+    start = time.clock()
     print("Starting", start)
     return start
 
@@ -139,7 +138,7 @@ def clock_end(start):
         common.clock_end(start)
     :return: the time the program took - str
     """
-    end = clock()
+    end = time.clock()
     print("Time Taken: {}".format(end - start))
     return "Time Taken: {}".format(end - start)
 
@@ -508,7 +507,7 @@ def multithread_download(list_of_urls, threads=6, save_directory=None):
     if not save_directory:
         save_directory = create_desktop_folder('multithread_download')
     
-    pool = ThreadPool(threads)
+    pool = Pool(threads)
     pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])), list_of_urls)
 
 
@@ -541,10 +540,10 @@ def print_list(arg_list):
         print(item)
 
 
-def index_print(arg_list, index_offset=0):
+def index_print(arg_list, starting_index=0):
     #  prints the index, along with the item
     #  index_offset: good for "human" stuff that starts at 1 and not 0
-    for count, element in enumerate(arg_list, index_offset):
+    for count, element in enumerate(arg_list, starting_index):
         print(count, element)
 
 
@@ -596,11 +595,11 @@ def list_choice(list_of_items):
     Loops through a list of items and allows the user to select the index to return that item in the list
     Good for quickly making menus
     """
-
-    index_print(list_of_items)
+    print("|INDEX|\t|CHOICE|")
+    index_print(list_of_items, starting_index=1)
     choice = input("Enter the index of the item to return\n>>>")
     try:
-        item_to_return = list_of_items[int(choice)]
+        item_to_return = list_of_items[int(choice) - 1]  # handle starting at 1
         return item_to_return
     except IndexError:
         print("The index you provided is not in the list")
@@ -671,8 +670,9 @@ def unique_items(user_list, preserve_order=False):
         return list(set(user_list))
 
 
-def list_union(list1, list2, *extra_lists, preserve_order=False):
+def list_union(list1, list2, preserve_order=False):
     """
+    TODO
     Performs a set union operation on two (or more lists).
     A union operation takes the elements in A and B and combines them.
     So the union between {1,2} and {2,3} = {1,2,3}
@@ -683,9 +683,8 @@ def list_union(list1, list2, *extra_lists, preserve_order=False):
     ADD PARAMS HERE
     """
     union_list = list(set(list1).union(list2))
-    if extra_lists:
-    #    for sub_list in extra_lists:
-        pass            
+    print_list("Not implemented yet")
+
 
 
 def list_intersection(list1, list2):
@@ -717,7 +716,7 @@ ez = print_list
 view_text_file = print_text_file
 get_driver = create_driver
 isdir = is_dir
-isfile = isfile
+isfile = is_file
 create_soup = get_soup
 get_files_in_directory = files_in_directory
 get_files = files_in_directory
