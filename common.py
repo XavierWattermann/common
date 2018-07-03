@@ -430,7 +430,7 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
     return folder_list
 
 
-def download(to_save, save_path):
+def download(to_save, save_path, verbose=False):
     """
     Downloads a file from the internet using urllib.request.urlretrieve
 
@@ -442,10 +442,11 @@ def download(to_save, save_path):
 
     :param to_save: the URL of the file to save
     :param save_path: Where to save the file
+    :param verbose: to print out additional information about the status of the download
     :return: None
     """
     try:
-        if is_file(save_path):
+        if is_file(save_path) and verbose:
             print('Item already exists!')
         else:
             urllib.request.urlretrieve(to_save, save_path)
