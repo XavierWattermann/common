@@ -98,7 +98,7 @@ def flatten_list(lists):
     return flat_list
 
 
-def frequency(iterable, count=None):
+def frequency(iterable, common_count=None):
     """
     Simple "wrapper" for collections.Counter which returns a frequency on various iterables(? need a better param name for this)
 
@@ -106,10 +106,9 @@ def frequency(iterable, count=None):
     "aaaabccc" => {'a': 4, 'b': 1, 'c': 3}
 
     count is an optional param which returns N amount of items - int
-    TODO: have info call this function to also return a frequency of the object!
     """
-    if count and isinstance(count, int):
-        return Counter(iterable).most_common(count)
+    if common_count and isinstance(common_count, int):
+        return Counter(iterable).most_common(common_count)
     return Counter(iterable)
 
 
@@ -158,12 +157,12 @@ def info(*objs):
             print("Object is an int/float/long -- and therefore has no length")
             print('Length of your object converted to a string is:', len(str(obj)))
         else:
-            print('-' * 100)
+            print('-' * 150)
             print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
-            print("Frequency: {}".format(frequency(obj)))
-            if isinstance(obj, list):  # TODO: ALLOW THIS TO SUPPORT MORE DATA TYPES
+            print("Frequency: {}".format(frequency(obj, common_count=10)))
+            if isinstance(obj, list): 
                 print("Unique Items: {}".format(unique_items(obj)))
-            print('-' * 100, '\n')
+            print('-' * 150, '\n')
 
 
 def soup_write(soup, file_path, file_ext=".txt"):
@@ -661,10 +660,6 @@ def time_print(user_list, time_to_sleep=1, use_minutes=False, sleep_message=Fals
         print(item)
         if sleep_message:
             print("\tSleeping for {} seconds".format(time_to_sleep))
-        time.sleep(time_to_sleep)
-
-
-#  SET OPERATIONS ON LISTS
 
 def unique_items(user_list, preserve_order=False):
     """
@@ -674,7 +669,7 @@ def unique_items(user_list, preserve_order=False):
     :return: a list with only unique items; no duplicates
     :rtype: list
     """
-    if not isinstance(user_list, list):  # add tuples?
+    if not isinstance(user_list, list): 
         print("you must pass a list! Returning None")
         return None
 
@@ -682,27 +677,6 @@ def unique_items(user_list, preserve_order=False):
         return list(OrderedDict.fromkeys(user_list))  # may not need to do this in later versions of Python3
     else:
         return list(set(user_list))
-
-
-def list_union(list1, list2, preserve_order=False):
-    """
-    TODO
-    Performs a set union operation on two (or more lists).
-    A union operation takes the elements in A and B and combines them.
-    So the union between {1,2} and {2,3} = {1,2,3}
-
-    This function isn't particularly useful, since lists have a function .extend() which satisifies the main purpose of this function.
-    One benefit may be the benefit of removing duplicates from the unioned list.
-
-    ADD PARAMS HERE
-    """
-    union_list = list(set(list1).union(list2))
-    print_list("Not implemented yet")
-
-
-
-def list_intersection(list1, list2):
-    pass
 
 
 def list_differnce(list1, list2):
