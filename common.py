@@ -380,17 +380,20 @@ def write_to_file(write_list, file_path, write_mode='a'):
         writer.write(write_list)
 
 
-def files_in_directory(folder_path, recursive=False, return_full_path=True):
+def files_in_directory(folder_path=None, recursive=False, return_full_path=True, file_type=None):
     """
     Returns the files in a given directory.
     By default, only returns the files in the immediate directory(folder_path). Setting recursive to True, will get all files 
     :param folder_path: the path to look for files
     :param recursive: to search in the folder_path for any subfolders to get more files
     :param return_full_path: return the absolute path for each file. Usually desired, especially for recursive mode.
+    :param file_type: a list or string representing file types to return. passing '.txt' will return only .txt files.
     :return: a list of file paths
     :rtype: list
     """
     file_list = []
+    if not folder_path:  # if nothing is passed, use the current directory
+        folder_path = '.'
 
     if not is_dir(folder_path):
         print("{} is not a folder! - Returning an empty list".format(folder_path))
@@ -404,6 +407,16 @@ def files_in_directory(folder_path, recursive=False, return_full_path=True):
                 file_list.append(file_path)
         if not recursive:  # this means we only want the current directory's file; nothing more
             break
+
+    if file_type:
+        if isinstance(file_type, (list, tuple)):
+            file_type = list(filter(lambda f_type: isinstance(f_type, str), file_type))  # unlikely, but removes not strings from file_types
+            file_list = list(filter(lambda f: f.endswith(tuple(file_type)), file_list))
+        elif isinstance(file_type, str):
+            file_list = list(filter(lambda f: f.endswith(file_type), file_list))
+        else:
+            print("Invalid type for parameter 'file_type' -- Must be a list, tuple or str")
+
     return file_list
 
 
