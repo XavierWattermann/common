@@ -14,11 +14,11 @@ sep = os.sep
 cwd = os.getcwd()
 
 
-def create_driver(url=None, chromedriver_path=None, headless=False):
+def create_driver(chromedriver_path, url=None, headless=False):
     """
     Creates a chrome webdriver using Selenium
+    :param chromedriver_path: File path to the chromedriver executable
     :param url: an optional argument to start the webdriver and go to a certain url
-    :param chromedriver_path: an optional argument to provide a file path to the chromedriver
     :param headless: an optional boolean argument to start the driver headless.
     :return: a selenium webdriver with Chrome
     :rtype: selenium.webdriver.
@@ -28,15 +28,15 @@ def create_driver(url=None, chromedriver_path=None, headless=False):
  
     chrome_options = Options()
     if chromedriver_path and is_file(chromedriver_path):
-        #  TODO: THIS
-        pass
+        if headless:
+            chrome_options.add_argument("--headless")
 
-    if headless:
-        chrome_options.add_argument("--headless")
+        driver = webdriver.Chrome(executable_path=chromedriver_path, chrome_options=chrome_options)
 
-    driver = webdriver.Chrome(chrome_options=chrome_options)
-    if url:
-        driver.get(url)
+        if url:
+            driver.get(url)
+    else:
+        print("Chromedriver Path doesn't exist!")
 
     return driver
 
@@ -95,12 +95,13 @@ def flatten_list(lists):
     for sublist in lists:
         for item in sublist:
             flat_list.append(item)
+
     return flat_list
 
 
 def frequency(iterable, common_count=None):
     """
-    Simple "wrapper" for collections.Counter which returns a frequency on various iterables(? need a better param name for this)
+    Simple "wrapper" for collections.Counter which returns a frequency on various iterable data types (lists, tuples)
 
     Example:
     "aaaabccc" => {'a': 4, 'b': 1, 'c': 3}
@@ -109,6 +110,7 @@ def frequency(iterable, common_count=None):
     """
     if common_count and isinstance(common_count, int):
         return Counter(iterable).most_common(common_count)
+
     return Counter(iterable)
 
 
@@ -286,7 +288,10 @@ def create_folder(path_to_create, folder_name, alert_message=False):
     If it doesn't, make the directory and then return the path.
     :param path_to_create: The 'root' directory of where the user wants the folder to be
     :param folder_name: the name of the folder to be created
+    :param alert_message: (bool) - Prints 'Path already exists' if True.
     :return: a path to the newly created folder
+
+    TODO: make folder_name optional, so you can just pass a full path and it will create that folder
     """
 
     new_path = os.path.join(path_to_create, folder_name, '')
@@ -343,6 +348,7 @@ def write_json(data, file_path, write_mode='w', indent=2, print_message=False):
     :param data: The data to write to a file
     :param file_path: Where the file should be written
     :param write_mode: w for write, a for append.
+    :param indent: (int) - indent to provide for the json, 2 usually looks pretty good.
     :param print_message: boolean if a print message should be made if the file was written (default: false)
     :return: None
     """
@@ -422,8 +428,11 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
 def folders_in_directory(folder_path, recursive=False, return_full_path=True):
     """
     Similar to files_in_directory(), this function returns the folder paths in a given directory.
-    By default, only returns the immediate subdirectories in the folder_path. Setting recursive to True, will get all sub folders.
-    TODO: Add parameters comments
+    By default, only returns the immediate subdirectories in the folder_path. Setting recursive to True, will get all subfolders.
+    :param folder_path: (str) - The root folder to start
+    :param recursive: (bool) - to get all the folders in the sub directories, and the sub-sub directories, and so on.
+    :param return_full_path: (bool) - to return the full/absolute path of the folder, not just the name.
+    :return:
     """
     folder_list = []
     if not is_dir(folder_path):
@@ -661,6 +670,7 @@ def time_print(user_list, time_to_sleep=1, use_minutes=False, sleep_message=Fals
         if sleep_message:
             print("\tSleeping for {} seconds".format(time_to_sleep))
 
+
 def unique_items(user_list, preserve_order=False):
     """
     removes duplicates elements from a list, by simply making it a set and then a list again
@@ -679,7 +689,7 @@ def unique_items(user_list, preserve_order=False):
         return list(set(user_list))
 
 
-def list_differnce(list1, list2):
+def list_difference(list1, list2):
     """
     Probably the most useful "list/set" operation for my use
     Takes list1 and returns the items from list1 that AREN'T in list2.
