@@ -467,10 +467,13 @@ def download(to_save, save_path, verbose=False):
     :return: None
     """
     try:
-        if is_file(save_path) and verbose:
-            print('Item already exists!')
+        if is_file(save_path):  # if it already exists, we do nothing. TODO: Maybe add overwrite option?
+            if verbose:
+                print('Item already exists!')
         else:
             urllib.request.urlretrieve(to_save, save_path)
+
+            #if verbose: TODO: what to do here
             print(to_save + " was saved to: " + save_path)
     except:
         print("Error - Could not save!")
@@ -490,13 +493,15 @@ def ez_download(list_of_items, save_directory=None, multithreaded=False):
     if not save_directory:  # no save directory given means we save it to the desktop
         save_directory = create_desktop_folder('python_download')
 
+    #  TODO: add a verbose mode for this as well? Basically, need a way to let the user know shit is being downloaded without being annoying
+    print("Starting Download...")
     if multithreaded:
         multithread_download(list_of_urls=list_of_items, save_directory=save_directory)
     else:
         for item in list_of_items:
             save_path = os.path.join(save_directory, os.path.split(item)[1])
             download(to_save=item, save_path=save_path)
-
+    print("\tEnding Download...")
 
 def multithread_download(list_of_urls, threads=6, save_directory=None):
     """
