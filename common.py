@@ -6,7 +6,6 @@ import os
 import random
 import shutil
 import string
-import sys
 import time
 import urllib
 
@@ -18,8 +17,12 @@ def create_driver(chromedriver_path, url=None, headless=False):
     """
     Creates a chrome webdriver using Selenium
     :param chromedriver_path: File path to the chromedriver executable
+    :type chromedriver_path: str
     :param url: an optional argument to start the webdriver and go to a certain url
+    :type url: str
     :param headless: an optional boolean argument to start the driver headless.
+    :type headless: bool
+
     :return: a selenium webdriver with Chrome
     :rtype: selenium.webdriver.
     """
@@ -27,7 +30,7 @@ def create_driver(chromedriver_path, url=None, headless=False):
     from selenium.webdriver.chrome.options import Options
  
     chrome_options = Options()
-    if chromedriver_path and is_file(chromedriver_path):
+    if is_file(chromedriver_path):
         if headless:
             chrome_options.add_argument("--headless")
 
@@ -37,11 +40,17 @@ def create_driver(chromedriver_path, url=None, headless=False):
             driver.get(url)
     else:
         print("Chromedriver Path doesn't exist!")
+        return None
 
     return driver
 
 
 def copy(src, dst):
+    """
+    Simple copy function because who the hell remembers to import shutil
+    TODO: Better docs, and add a COPY_TO function that accepts a list of paths and
+    will copy those items to another directory. -- add a 'move' flag for that
+    """
     shutil.copyfile(src, dst)
 
 
@@ -79,22 +88,34 @@ def copy_to_desktop(file_path, folder_name=None):
 
 
 def is_dir(folder_path):
-    #  checks if a given folder path is actually a folder
+    """
+    Simple 'wrapper' for os.path.isdir(), because importing os and typing that is too much work...
+    :param folder_path: The path to check for existence.
+    :type folder_path: str
+    :return: True (folder exists), False (folder doesn't exist)
+    :rtype: bool
+    """
     return os.path.isdir(folder_path)
 
 
-def flatten_list(lists):
+def flatten_list(lists, return_unique=False):
     """
     Returns a flatten list from a list of lists.
         INPUT: [[1,2,3,4], [1,2,3], [3]]
         OUTPUT: [1, 2, 3, 4, 1, 2, 3, 3]
     :param lists: a 2D list
+    :type lists: list
+    :param return_unique: can return only the unique items from the newly flatten list
+    :type return_unique: bool
     :return: a flatten list with all those elements in one list.
     """
     flat_list = []
     for sublist in lists:
         for item in sublist:
             flat_list.append(item)
+
+    if return_unique:
+        return unique_items(flat_list) 
 
     return flat_list
 
@@ -107,6 +128,12 @@ def frequency(iterable, common_count=None):
     "aaaabccc" => {'a': 4, 'b': 1, 'c': 3}
 
     count is an optional param which returns N amount of items - int
+    :param iterable: a list, tuple, set, etc of items
+    :type iterable: list
+    :param common_count: to return a subset of the items with only the N most popular items.
+    :type common_count: int
+    :return A counter (a dictionary with keys, and the value is the number of times the keys are present)
+    :rtype: collections.Counter
     """
     if common_count and isinstance(common_count, int):
         return Counter(iterable).most_common(common_count)
@@ -144,35 +171,53 @@ def clock_end(start):
     return "Time Taken: {}".format(end - start)
 
 
-def info(*objs):
+def info(*objs, limit_output=True):
     """
     A method that prints out 1 or more object's properties so far including:
         - The object itself
         - Type of the object
         - Length of the object
     Sort of makes common.lengths() method obsolete.
+
     :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
+    :type objs: unknown(list, tuple, dict, set)
+
+    :param limit_output: limits the output of very large objects. 
+    :type limit_output: bool
+
     :return: None - prints the results
     """
     for obj in objs:
-        if type(obj) in [int, float]:
-            print("Object is an int/float/long -- and therefore has no length")
+        if isinstance(obj, (int, float, complex)):
+            print("Object is an int/float/complex -- and therefore has no length")
             print('Length of your object converted to a string is:', len(str(obj)))
         else:
-            print('-' * 150)
-            print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            print('-' * 200)
+            
+            if limit_output:
+                print("50 first entries of Object: {}\nType: {}\nLength: {}".format(obj[0:50], type(obj), len(obj)))
+            else:
+                print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            
             print("Frequency: {}".format(frequency(obj, common_count=10)))
+            
             if isinstance(obj, list): 
                 print("Unique Items: {}".format(unique_items(obj)))
-            print('-' * 150, '\n')
+            
+            print("Available Public Attributes: {}".format([attr for attr in dir(obj) if '__' not in attr]))
+
+            print('-' * 200, '\n')
 
 
 def soup_write(soup, file_path, file_ext=".txt"):
     """
     Writes a BeautifulSoup object to a textfile
     :param soup: the BeautifulSoup object
+    :type soup: bs4.BeautifulSoup
     :param file_path: The path for the textfile
+    :type file_path: str
     :param file_ext: The extension for the file; default is a .txt
+    :type file_ext: str
     :return: None; creates a file with the soup object
     """
     html = soup.prettify("utf-8")
@@ -186,18 +231,22 @@ def find_all(soup, first, second, third):
     """
     A simpler (sorta...) method to BeautifulSoup.find_all
     :param soup: A BeautifulSoup object
+    :type soup: bs4.BeautifulSoup
     :param first: The first item to search for. Example: div
+    :type first: str
     :param second: the second aspect to search for. The key in the key:value pair. Example: class
+    :type second: str
     :param third: The third aspect, which is the value in the key: value pair. Example: <class-name>
         Example:
             BeautifulSoup(<url>,<parser>).find_all("div", {"class": <"classname">})
             is simplifed with this method by using:
             results = common.find_all(soup_obj, "div", "class", "<classname>")
+    :type third: str
     :return: a list of items found by the search.
     """
     #  returns a soup object with find_all
     try:
-        items = soup.find_all(first, {second:third})
+        items = soup.find_all(first, {second: third})
     except Exception as error:
         print("There was an error trying to find all", error)
         return None
@@ -210,17 +259,20 @@ def get_soup(url, parser="html.parser"):
     """
     A quicker way to create a BeautifulSoup object, just provide the url that needs to be parsed & a BS obj is returned
     :param url: The url of the site that needs to be parsed.
+    :type url: str
     :param parser: the parser to use, by default html.parser (built into BS) is used. Other options are xml, lxml.
     :TODO: Do a better check to see if the passed 'url' is a selenium webdriver
+    :type parser: str
     :return: a BeautifulSoup object.
     """
     from bs4 import BeautifulSoup
     import requests
     try:
         if 'webdriver' in str(type(url)):  # a pretty weak check to see if 'url' is really a selenium webdriver
-            soup = BeautifulSoup(url.page_source, parser)  # we can use a webdriver's page_source to get the content of the current site.
+            # we can use a webdriver's page_source to get the content of the current site.
+            soup = BeautifulSoup(url.page_source, parser)
         elif is_file(url):  # the url is a file, try to open it and parse.
-            soup = BeautifulSoup(open(url), parser)
+            soup = BeautifulSoup(open(url, 'r'), parser)
         else:
             page = requests.get(url).content
             soup = BeautifulSoup(page, parser)
@@ -235,8 +287,11 @@ def check_valid_site(url, print_status=False):
     """
     Checks if a passed URL is valid. If the status code from the site isn't 200, than it isn't valid.
     :param url: a url to check
+    :type url: str
     :param print_status: Print if the passed site is valid or not
+    :type print_status: bool
     :return: True(site is valid) or False(site isn't valid; 404)
+    :rtype: bool
     """
     import requests
     try:
@@ -250,15 +305,17 @@ def check_valid_site(url, print_status=False):
             if print_status:
                 print(url, "was not a valid status, here's the status code:", status_code)
             return False
-    except:
+    except Exception as e:
         print("It broke on", url)
+        print("Error: ", e)
 
 
 def lengths(*args):
     """
     Returns the length of multiple objects. Good for testing.
     :param args: multiple argument for N amount of objects (usually lists)
-    :return:
+    :type args: iterable
+    :return: None
     """
     for i, obj in enumerate(args):
         print("Item", i, obj, "has a length of:", len(obj))
@@ -268,7 +325,11 @@ def create_desktop_folder(folder_name, alert_message=True):
     """
     Creates a folder on the user's desktop
     :param folder_name: the name of the folder on the desktop
+    :type folder_name: str
+    :param alert_message: verbose mode; add a print statement that the folder was created and the path
+    :type alert_message: bool
     :return: the path to the new folder.
+    :rtype: str
     """
     #  given a folder name, a folder with that name is created on the Desktop
     return create_folder(get_desktop(), folder_name, alert_message=alert_message)
@@ -278,23 +339,28 @@ def get_desktop():
     """
     gets a path to the user's desktop
     :return: A path to the user's desktop
+    :rtype: str
     """
     return os.path.join(os.path.expanduser('~'), 'Desktop', '')
 
 
-def create_folder(path_to_create, folder_name, alert_message=False):
+def create_folder(path_to_create, folder_name=None, alert_message=False):
     """
     Checks if a directory exists. If it does, simply return the path.
     If it doesn't, make the directory and then return the path.
     :param path_to_create: The 'root' directory of where the user wants the folder to be
+    :type path_to_create: str
     :param folder_name: the name of the folder to be created
+    :type folder_name: str
     :param alert_message: (bool) - Prints 'Path already exists' if True.
+    :type alert_message: bool
     :return: a path to the newly created folder
-
-    TODO: make folder_name optional, so you can just pass a full path and it will create that folder
+    :rtype: str
     """
-
-    new_path = os.path.join(path_to_create, folder_name, '')
+    if folder_name:
+        new_path = os.path.join(path_to_create, folder_name, '')
+    else:
+        new_path = path_to_create
     if not is_dir(new_path):
         print("Creating Folder at: " + new_path)
         os.makedirs(new_path)
@@ -319,7 +385,6 @@ def read_file(file_path):
     """
     #  reads from a textfile into a list, and returns that list
     if is_file(file_path):
-        file_list = []
         with open(file_path) as f:
             file_list = f.read().splitlines()
     else:
@@ -332,7 +397,6 @@ def read_file(file_path):
 def read_csv(file_path):
     #  reads from a (csv)textfile into a list, and returns that list
     if is_file(file_path):
-        file_list = []
         with open(file_path, 'r') as f:
             reader = csv.reader(f)
             file_list = list(reader)
@@ -388,11 +452,16 @@ def write_to_file(write_list, file_path, write_mode='a'):
 def files_in_directory(folder_path=None, recursive=False, return_full_path=True, file_type=None):
     """
     Returns the files in a given directory.
-    By default, only returns the files in the immediate directory(folder_path). Setting recursive to True, will get all files 
+    By default, only returns the files in the immediate directory(folder_path).
+        Setting recursive to True, will get all files.
     :param folder_path: the path to look for files
+    :type folder_path: str
     :param recursive: to search in the folder_path for any subfolders to get more files
+    :type recursive: bool
     :param return_full_path: return the absolute path for each file. Usually desired, especially for recursive mode.
+    :type return_full_path: bool
     :param file_type: a list or string representing file types to return. passing '.txt' will return only .txt files.
+    :type file_type: str or list/tuple/set of strings
     :return: a list of file paths
     :rtype: list
     """
@@ -415,7 +484,9 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
 
     if file_type:
         if isinstance(file_type, (list, tuple)):
-            file_type = list(filter(lambda f_type: isinstance(f_type, str), file_type))  # unlikely, but removes not strings from file_types
+            # unlikely, but removes not strings from file_types
+            file_type = list(filter(lambda f_type: isinstance(f_type, str), file_type))
+
             file_list = list(filter(lambda f: f.endswith(tuple(file_type)), file_list))
         elif isinstance(file_type, str):
             file_list = list(filter(lambda f: f.endswith(file_type), file_list))
@@ -428,11 +499,16 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
 def folders_in_directory(folder_path, recursive=False, return_full_path=True):
     """
     Similar to files_in_directory(), this function returns the folder paths in a given directory.
-    By default, only returns the immediate subdirectories in the folder_path. Setting recursive to True, will get all subfolders.
+    By default, only returns the immediate subdirectories in the folder_path.
+        Setting recursive to True, will get all subfolders.
     :param folder_path: (str) - The root folder to start
+    :type folder_path: str
     :param recursive: (bool) - to get all the folders in the sub directories, and the sub-sub directories, and so on.
+    :type recursive: bool
     :param return_full_path: (bool) - to return the full/absolute path of the folder, not just the name.
-    :return:
+    :type return_full_path: bool
+    :return: a list of folder paths
+    :rtype: bool
     """
     folder_list = []
     if not is_dir(folder_path):
@@ -462,20 +538,26 @@ def download(to_save, save_path, verbose=False):
         common.download(URL, 'home/USER/Desktop/FOLDER/file_name.EXTENSION')
 
     :param to_save: the URL of the file to save
+    :type to_save: str
     :param save_path: Where to save the file
+    :type save_path: str
     :param verbose: to print out additional information about the status of the download
+    :type verbose: bool
     :return: None
     """
     try:
-        if is_file(save_path) and verbose:
-            print('Item already exists!')
+        if is_file(save_path):  # if it already exists, we do nothing. TODO: Maybe add overwrite option?
+            if verbose:
+                print('Item already exists!')
         else:
             urllib.request.urlretrieve(to_save, save_path)
+
+            #  if verbose: TODO: what to do here
             print(to_save + " was saved to: " + save_path)
-    except:
+    except Exception as e:
         print("Error - Could not save!")
-        print("File:", to_save, "\nPath:",save_path, '\n')
-        print("Unexpected error:", sys.exc_info()[0])
+        print("File:", to_save, "\nPath:", save_path, '\n')
+        print(e)
 
 
 def ez_download(list_of_items, save_directory=None, multithreaded=False):
@@ -490,12 +572,16 @@ def ez_download(list_of_items, save_directory=None, multithreaded=False):
     if not save_directory:  # no save directory given means we save it to the desktop
         save_directory = create_desktop_folder('python_download')
 
+    #  TODO: add a verbose mode for this as well?
+    # Basically, need a way to let the user know shit is being downloaded without being annoying
+    print("Starting Download...")
     if multithreaded:
         multithread_download(list_of_urls=list_of_items, save_directory=save_directory)
     else:
         for item in list_of_items:
             save_path = os.path.join(save_directory, os.path.split(item)[1])
             download(to_save=item, save_path=save_path)
+    print("\tEnding Download...")
 
 
 def multithread_download(list_of_urls, threads=6, save_directory=None):
@@ -522,15 +608,19 @@ def multithread_download(list_of_urls, threads=6, save_directory=None):
 
     :param list_of_urls: a list of urls(that are direct links to media(.jpg, .mp3, etc)) that can be saved with
     urllib.request.urlretrieve aka common.download()
+    :type list_of_urls: list
     :param threads: the number of threads to use; by default 6 is used
+    :type threads: int
     :param save_directory: where to save the items
+    :type save_directory: str
     :return: None
     """
     if not save_directory:
         save_directory = create_desktop_folder('multithread_download')
     
     pool = Pool(threads)
-    pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])), list_of_urls)
+    pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])),
+             list_of_urls)
 
 
 def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
@@ -578,21 +668,23 @@ def zip_print(arg_list):
 def random_name(ext, file_length=6):
     """
     :param ext: the file extension, .mp4, .jpg, etc
+    :type ext: str
     :param file_length: how long to make the filename
+    :type file_length: int
     :return: a random file name
+    :rtype: str
     """
     file_name = ''
     letters = string.ascii_lowercase
     for i in range(file_length):
         file_name += random.choice(letters)
 
-    file_name += str(random.randint(0,100)) + ext
+    file_name += str(random.randint(0, 100)) + ext
 
     return file_name
 
 
 def continuous_input(message=None, end_word='stop'):
-    from six.moves import input  # support python2
     """
     Gets multiple input from the user until they enter the 'end_word'
 
@@ -612,7 +704,6 @@ def continuous_input(message=None, end_word='stop'):
 
 
 def list_choice(list_of_items):
-    from six.moves import input  # support python2
     """
     Loops through a list of items and allows the user to select the index to return that item in the list
     Good for quickly making menus
@@ -643,12 +734,12 @@ def sleep(time_to_sleep, use_minutes=False, message=None, end_message=None):
     if end_message is None:
         end_message = "Finished Sleeping"
 
-    if not message:  # if message is set to False, we don't print anything.
+    if message:  # if message is set to False, we don't print anything.
         print(message)
 
     time.sleep(time_to_sleep)
 
-    if not end_message: 
+    if end_message: 
         print(end_message)
 
 
@@ -676,6 +767,9 @@ def unique_items(user_list, preserve_order=False):
     removes duplicates elements from a list, by simply making it a set and then a list again
     :param user_list: the user's list that the unique items will be returned
     :preserve_order: boolean - if the order matters for your list this should be set to True
+    :type user_list: list
+    :param preserve_order: attempts to keep the order of the items
+    :type preserve_order: bool
     :return: a list with only unique items; no duplicates
     :rtype: list
     """
@@ -701,9 +795,54 @@ def list_difference(list1, list2):
     Useful if you have, for example, a bunch of urls to save. list1 could be the urls to save,
     and list2 could be a list of urls that are already saved. Using the function would return a 
     list of only new urls that need to be saved
+    :param list1 - the first list...
+    :type list1: list
+    :param list2 - the second list...
+    :type list2: list
+    :return: a list with only items that are in list1 and NOT in list2
+    :rtype: list
     """
 
     return list(set(list1) - set(list2))
+
+
+def file_info(file_path):
+    """
+    Gives metadata about a file, including:
+        -
+    :param file_path: the path of the file on the system
+    :type file_path: str
+    :return: a dict containing the file meta data
+    :rtype: dict
+    """
+    data = {}
+    if not isfile(file_path):
+        print("File path({}) doesn't exist!".format(file_path))
+        return {}
+
+    data['directory'] = os.path.dirname(file_path)
+    data['name'] = os.path.basename(file_path)
+    data['extension'] = os.path.splitext(file_path)[-1]
+
+    return data
+
+
+def directory_to_dict(directory=None):
+    """
+    WIP: Takes a directory and produces a .json file on the directory's contents
+    This will include subdirectories, files, and stats about them (how many folders, files, etc_
+
+    Extra flags can give more meta data information -- like file size? date modified/created?
+    TODO: Add Param Comments
+    """
+    data = {}
+    all_paths = []
+    all_subdirectories = []  # this might just be a subset of all_paths
+    all_files = []
+    # TODO: validate directory; if it's none, use c.w.d, else check if it's a valid path
+
+    for path, subdirectories, files in os.walk(directory):
+        pass
 
 
 #  Alternative Names -- since I forget what I call my other functions
@@ -722,3 +861,5 @@ get_folders = folders_in_directory
 get_folders_in_directory = folders_in_directory
 easy_download = ez_download
 remove_duplicates = unique_items
+write_file = write_to_file
+directory_to_json = directory_to_dict
