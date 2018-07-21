@@ -10,6 +10,11 @@ import sys
 import time
 import urllib
 
+from bs4 import BeautifulSoup
+import requests
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 sep = os.sep
 cwd = os.getcwd()
 
@@ -23,9 +28,6 @@ def create_driver(chromedriver_path, url=None, headless=False):
     :return: a selenium webdriver with Chrome
     :rtype: selenium.webdriver.
     """
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
- 
     chrome_options = Options()
     if chromedriver_path and is_file(chromedriver_path):
         if headless:
@@ -229,8 +231,6 @@ def get_soup(url, parser="html.parser"):
     :TODO: Do a better check to see if the passed 'url' is a selenium webdriver
     :return: a BeautifulSoup object.
     """
-    from bs4 import BeautifulSoup
-    import requests
     try:
         if 'webdriver' in str(type(url)):  # a pretty weak check to see if 'url' is really a selenium webdriver
             soup = BeautifulSoup(url.page_source, parser)  # we can use a webdriver's page_source to get the content of the current site.
@@ -253,7 +253,6 @@ def check_valid_site(url, print_status=False):
     :param print_status: Print if the passed site is valid or not
     :return: True(site is valid) or False(site isn't valid; 404)
     """
-    import requests
     try:
         request = requests.get(url)
         status_code = request.status_code
