@@ -144,27 +144,42 @@ def clock_end(start):
     return "Time Taken: {}".format(end - start)
 
 
-def info(*objs):
+def info(*objs, limit_output=True):
     """
     A method that prints out 1 or more object's properties so far including:
         - The object itself
         - Type of the object
         - Length of the object
     Sort of makes common.lengths() method obsolete.
+
     :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
+    :type unknown
+
+    :param limit_output: limits the output of very large objects. 
+    :type bool:
+
     :return: None - prints the results
     """
     for obj in objs:
-        if type(obj) in [int, float]:
-            print("Object is an int/float/long -- and therefore has no length")
+        if isinstance(obj, (int, float, complex)):
+            print("Object is an int/float/complex -- and therefore has no length")
             print('Length of your object converted to a string is:', len(str(obj)))
         else:
-            print('-' * 150)
-            print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            print('-' * 200)
+            
+            if limit_output:
+                print("50 first entries of Object: {}\nType: {}\nLength: {}".format(obj[0:50], type(obj), len(obj)))
+            else:
+                print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
+            
             print("Frequency: {}".format(frequency(obj, common_count=10)))
+            
             if isinstance(obj, list): 
                 print("Unique Items: {}".format(unique_items(obj)))
-            print('-' * 150, '\n')
+            
+            print("Available Public Attributes: {}".format([attr for attr in dir(obj) if '__' not in attr]))
+
+            print('-' * 200, '\n')
 
 
 def soup_write(soup, file_path, file_ext=".txt"):
