@@ -371,7 +371,7 @@ def create_folder(path_to_create, folder_name=None, alert_message=False):
     return new_path
 
 
-def read_file(file_path):
+def read_file(file_path, return_string=False, join_character=" "):
     """
     Reads in a textfile and returns a list of that file.
     Works best (or possibly only) if the textfile is formatted with a word/sentence on each line.
@@ -381,15 +381,30 @@ def read_file(file_path):
             testword_1
         [hey, test, testword_1] would be returned. - type() == list
     :param file_path: the textfile to read in from
+    :type file_path: str
+    :param return_string: can return the textfile as one giant string.
+    :type return_string: bool
+    :param join_character: the character to use/seperate when return_string=True, by default it's
+    an empty space. Other common characters could be "-", ".", "\n"
+    :type join_character: str
+
     :return: a list of items from the textfile
+    :rtype list (unless return_string; then str)
     """
     #  reads from a textfile into a list, and returns that list
     if is_file(file_path):
         with open(file_path) as f:
             file_list = f.read().splitlines()
     else:
-        print("Your file doesn't appear to exist. Enter a new path")
+        print("Your file doesn't appear to exist.")
+        path = input("Enter new file path -- 'c' to cancel")
+        if path == 'c':
+            print("Path not found -- returning an empty list")
+            return []
         return read_file(input("New file path: "))
+
+    if return_string:
+        return join_character.join(file_list)
 
     return file_list
 
