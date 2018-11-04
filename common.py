@@ -371,7 +371,7 @@ def create_folder(path_to_create, folder_name=None, alert_message=False):
     return new_path
 
 
-def read_file(file_path, return_string=False, join_character=" "):
+def read_file(file_path, sort=False, return_string=False, join_character=" "):
     """
     Reads in a textfile and returns a list of that file.
     Works best (or possibly only) if the textfile is formatted with a word/sentence on each line.
@@ -382,6 +382,8 @@ def read_file(file_path, return_string=False, join_character=" "):
         [hey, test, testword_1] would be returned. - type() == list
     :param file_path: the textfile to read in from
     :type file_path: str
+    :param sort: boolean to sort the read in list.
+    :type sort: bool
     :param return_string: can return the textfile as one giant string.
     :type return_string: bool
     :param join_character: the character to use/seperate when return_string=True, by default it's
@@ -405,6 +407,9 @@ def read_file(file_path, return_string=False, join_character=" "):
 
     if return_string:
         return join_character.join(file_list)
+
+    if sort and isinstance(file_list, list):
+        file_list.sort()
 
     return file_list
 
@@ -448,13 +453,17 @@ def read_json(file_path):
             data = json.load(json_data)
             return data
     else:
-        print("Your .JSON file doesn't appear to exist. Enter a new path")
+        print("Your .JSON file doesn't appear to exist.")
+        path = input("Enter new file path -- 'c' to cancel")
+        if path == 'c':
+            print("Path not found -- returning 'None'")
+            return None
         return read_json(input("New file path:"))
 
 
 def write_to_file(write_list, file_path, write_mode='a'):
     #  writes a list to a textfile
-    if type(write_list) == list:
+    if isinstance(write_list, list):
         with open(file_path, write_mode) as my_file:
             for item in write_list:
                 my_file.write(str(item) + "\n")
