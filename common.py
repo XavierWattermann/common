@@ -1,13 +1,13 @@
-from collections import OrderedDict, Counter
 import csv
 import json
-from multiprocessing.dummy import Pool
 import os
 import random
 import shutil
 import string
 import time
 import urllib
+from collections import OrderedDict, Counter
+from multiprocessing.dummy import Pool
 
 sep = os.sep
 cwd = os.getcwd()
@@ -854,7 +854,7 @@ def file_info(file_path):
 def directory_to_dict(directory=None):
     """
     WIP: Takes a directory and produces a .json file on the directory's contents
-    This will include subdirectories, files, and stats about them (how many folders, files, etc_
+    This will include subdirectories, files, and stats about them (how many folders, files, etc)
 
     Extra flags can give more meta data information -- like file size? date modified/created?
     TODO: Add Param Comments
