@@ -905,3 +905,4 @@ remove_duplicates = unique_items
 write_file = write_to_file
 directory_to_json = directory_to_dict
 get_json = read_json
+random_integer = randint
