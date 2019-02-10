@@ -869,6 +869,23 @@ def directory_to_dict(directory=None):
         pass
 
 
+def randint(a, b):
+    """
+    Simple wrapper for random.randint(), which I get tired of having to import to generate a rand between two numbers.
+        randint doc: Return a random integer N such that a <= N <= b. Alias for randrange(a, b+1).
+    :param a:
+    :type a: int
+    :param b:
+    :type b: int
+    :return: a random integer between a and b
+    :rtype: int
+    """
+    if all([isinstance(a, int), isinstance(b, int)]):
+        return random.randint(a, b)
+    else:
+        raise ValueError("You must pass integers!")
+
+
 #  Alternative Names -- since I forget what I call my other functions
 eazy_print = print_list
 easy_print = print_list
