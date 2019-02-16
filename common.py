@@ -864,9 +864,11 @@ def directory_to_dict(directory=None):
     all_subdirectories = []  # this might just be a subset of all_paths
     all_files = []
     # TODO: validate directory; if it's none, use c.w.d, else check if it's a valid path
+    if directory is None:
+        directory = cwd
 
     for path, subdirectories, files in os.walk(directory):
-        pass
+        print(path)
 
 
 def randint(a, b):
