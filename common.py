@@ -13,7 +13,7 @@ sep = os.sep
 cwd = os.getcwd()
 
 
-def create_driver(chromedriver_path, url=None, headless=False):
+def create_driver(chromedriver_path: str, url: str = "", headless: bool = False):
     """
     Creates a chrome webdriver using Selenium
     :param chromedriver_path: File path to the chromedriver executable
@@ -26,20 +26,22 @@ def create_driver(chromedriver_path, url=None, headless=False):
     :return: a selenium webdriver with Chrome
     :rtype: selenium.webdriver.
     """
-    from selenium import webdriver
-    from selenium.webdriver.chrome.options import Options
- 
+    from selenium import webdriver  # type: ignore
+    from selenium.webdriver.chrome.options import Options  # type: ignore
+
     chrome_options = Options()
     if is_file(chromedriver_path):
         if headless:
             chrome_options.add_argument("--headless")
 
-        driver = webdriver.Chrome(executable_path=chromedriver_path, chrome_options=chrome_options)
+        driver = webdriver.Chrome(
+            executable_path=chromedriver_path, chrome_options=chrome_options
+        )
 
         if url:
             driver.get(url)
     else:
-        print("Chromedriver Path doesn't exist!")
+        print("WARNING: Chromedriver Path Doesn't Exist!")
         return None
 
     return driver
@@ -115,7 +117,7 @@ def flatten_list(lists, return_unique=False):
             flat_list.append(item)
 
     if return_unique:
-        return unique_items(flat_list) 
+        return unique_items(flat_list)
 
     return flat_list
 
@@ -182,7 +184,7 @@ def info(*objs, limit_output=True):
     :param objs: a variable amount of objects. Where objects could be a list, tuple, str, etc
     :type objs: unknown(list, tuple, dict, set)
 
-    :param limit_output: limits the output of very large objects. 
+    :param limit_output: limits the output of very large objects.
     :type limit_output: bool
 
     :return: None - prints the results
@@ -190,23 +192,33 @@ def info(*objs, limit_output=True):
     for obj in objs:
         if isinstance(obj, (int, float, complex)):
             print("Object is an int/float/complex -- and therefore has no length")
-            print('Length of your object converted to a string is:', len(str(obj)))
+            print("Length of your object converted to a string is:", len(str(obj)))
         else:
-            print('-' * 200)
-            
-            if limit_output:
-                print("50 first entries of Object: {}\nType: {}\nLength: {}".format(obj[0:50], type(obj), len(obj)))
-            else:
-                print("Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj)))
-            
-            print("Frequency: {}".format(frequency(obj, common_count=10)))
-            
-            if isinstance(obj, list): 
-                print("Unique Items: {}".format(unique_items(obj)))
-            
-            print("Available Public Attributes: {}".format([attr for attr in dir(obj) if '__' not in attr]))
+            print("-" * 200)
 
-            print('-' * 200, '\n')
+            if limit_output:
+                print(
+                    "50 first entries of Object: {}\nType: {}\nLength: {}".format(
+                        obj[0:50], type(obj), len(obj)
+                    )
+                )
+            else:
+                print(
+                    "Object: {}\nType: {}\nLength: {}".format(obj, type(obj), len(obj))
+                )
+
+            print("Frequency: {}".format(frequency(obj, common_count=10)))
+
+            if isinstance(obj, list):
+                print("Unique Items: {}".format(unique_items(obj)))
+
+            print(
+                "Available Public Attributes: {}".format(
+                    [attr for attr in dir(obj) if "__" not in attr]
+                )
+            )
+
+            print("-" * 200, "\n")
 
 
 def soup_write(soup, file_path, file_ext=".txt"):
@@ -224,7 +236,7 @@ def soup_write(soup, file_path, file_ext=".txt"):
     with open(file_path + file_ext, "wb") as file:
         file.write(html)
 
-    print("FILE PATH + file_ext =", file_path+file_ext)
+    print("FILE PATH + file_ext =", file_path + file_ext)
 
 
 def find_all(soup, first, second, third):
@@ -265,19 +277,26 @@ def get_soup(url, parser="html.parser"):
     :type parser: str
     :return: a BeautifulSoup object.
     """
-    from bs4 import BeautifulSoup
+    from bs4 import BeautifulSoup  # type: ignore
     import requests
+
     try:
-        if 'webdriver' in str(type(url)):  # a pretty weak check to see if 'url' is really a selenium webdriver
+        if "webdriver" in str(
+            type(url)
+        ):  # a pretty weak check to see if 'url' is really a selenium webdriver
             # we can use a webdriver's page_source to get the content of the current site.
             soup = BeautifulSoup(url.page_source, parser)
         elif is_file(url):  # the url is a file, try to open it and parse.
-            soup = BeautifulSoup(open(url, 'r'), parser)
+            soup = BeautifulSoup(open(url, "r"), parser)
         else:
             page = requests.get(url).content
             soup = BeautifulSoup(page, parser)
     except Exception as e:
-        print("An error has occurred with common.get_soup(). Here is the error message: {}".format(e))
+        print(
+            "An error has occurred with common.get_soup(). Here is the error message: {}".format(
+                e
+            )
+        )
         return None
 
     return soup
@@ -294,6 +313,7 @@ def check_valid_site(url, print_status=False):
     :rtype: bool
     """
     import requests
+
     try:
         request = requests.get(url)
         status_code = request.status_code
@@ -303,7 +323,9 @@ def check_valid_site(url, print_status=False):
             return True
         else:
             if print_status:
-                print(url, "was not a valid status, here's the status code:", status_code)
+                print(
+                    url, "was not a valid status, here's the status code:", status_code
+                )
             return False
     except Exception as e:
         print("It broke on", url)
@@ -341,7 +363,7 @@ def get_desktop():
     :return: A path to the user's desktop
     :rtype: str
     """
-    return os.path.join(os.path.expanduser('~'), 'Desktop', '')
+    return os.path.join(os.path.expanduser("~"), "Desktop", "")
 
 
 def create_folder(path_to_create, folder_name=None, alert_message=False):
@@ -358,7 +380,7 @@ def create_folder(path_to_create, folder_name=None, alert_message=False):
     :rtype: str
     """
     if folder_name:
-        new_path = os.path.join(path_to_create, folder_name, '')
+        new_path = os.path.join(path_to_create, folder_name, "")
     else:
         new_path = path_to_create
     if not is_dir(new_path):
@@ -400,7 +422,7 @@ def read_file(file_path, sort=False, return_string=False, join_character=" "):
     else:
         print("Your file doesn't appear to exist.")
         path = input("Enter new file path -- 'c' to cancel")
-        if path == 'c':
+        if path == "c":
             print("Path not found -- returning an empty list")
             return []
         return read_file(input("New file path: "))
@@ -417,7 +439,7 @@ def read_file(file_path, sort=False, return_string=False, join_character=" "):
 def read_csv(file_path):
     #  reads from a (csv)textfile into a list, and returns that list
     if is_file(file_path):
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             reader = csv.reader(f)
             file_list = list(reader)
     else:
@@ -427,7 +449,7 @@ def read_csv(file_path):
     return file_list
 
 
-def write_json(data, file_path, write_mode='w', indent=2, print_message=False):
+def write_json(data, file_path, write_mode="w", indent=2, print_message=False):
     """
     :param data: The data to write to a file
     :param file_path: Where the file should be written
@@ -455,13 +477,13 @@ def read_json(file_path):
     else:
         print("Your .JSON file doesn't appear to exist.")
         path = input("Enter new file path -- 'c' to cancel")
-        if path == 'c':
+        if path == "c":
             print("Path not found -- returning 'None'")
             return None
         return read_json(input("New file path:"))
 
 
-def write_to_file(write_list, file_path, write_mode='a'):
+def write_to_file(write_list, file_path, write_mode="a"):
     #  writes a list to a textfile
     if isinstance(write_list, list):
         with open(file_path, write_mode) as my_file:
@@ -473,7 +495,9 @@ def write_to_file(write_list, file_path, write_mode='a'):
         writer.write(write_list)
 
 
-def files_in_directory(folder_path=None, recursive=False, return_full_path=True, file_type=None):
+def files_in_directory(
+    folder_path=None, recursive=False, return_full_path=True, file_type=None
+):
     """
     Returns the files in a given directory.
     By default, only returns the files in the immediate directory(folder_path).
@@ -491,7 +515,7 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
     """
     file_list = []
     if not folder_path:  # if nothing is passed, use the current directory
-        folder_path = '.'
+        folder_path = "."
 
     if not is_dir(folder_path):
         print("{} is not a folder! - Returning an empty list".format(folder_path))
@@ -500,10 +524,14 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
     for current_folder, subdirectories, files in os.walk(folder_path):
         for file_path in files:
             if return_full_path:
-                file_list.append(os.path.join(current_folder, file_path))
+                file_list.append(
+                    os.path.join(os.path.abspath(current_folder), file_path)
+                )
             else:
                 file_list.append(file_path)
-        if not recursive:  # this means we only want the current directory's file; nothing more
+        if (
+            not recursive
+        ):  # this means we only want the current directory's file; nothing more
             break
 
     if file_type:
@@ -515,7 +543,9 @@ def files_in_directory(folder_path=None, recursive=False, return_full_path=True,
         elif isinstance(file_type, str):
             file_list = list(filter(lambda f: f.endswith(file_type), file_list))
         else:
-            print("Invalid type for parameter 'file_type' -- Must be a list, tuple or str")
+            print(
+                "Invalid type for parameter 'file_type' -- Must be a list, tuple or str"
+            )
 
     return file_list
 
@@ -538,7 +568,7 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
     if not is_dir(folder_path):
         print("{} is not a folder! Returning an empty list".format(folder_path))
         return []
-    if folder_path == '.':
+    if folder_path == ".":
         folder_path = os.getcwd()
     for current_folder, subdirectories, files in os.walk(folder_path):
         for sub_path in subdirectories:
@@ -546,7 +576,9 @@ def folders_in_directory(folder_path, recursive=False, return_full_path=True):
                 folder_list.append(os.path.join(current_folder, sub_path))
             else:
                 folder_list.append(sub_path)
-        if not recursive:  # this means we only want the current directory's subdirectories; nothing more
+        if (
+            not recursive
+        ):  # this means we only want the current directory's subdirectories; nothing more
             break
     return folder_list
 
@@ -570,9 +602,11 @@ def download(to_save, save_path, verbose=False):
     :return: None
     """
     try:
-        if is_file(save_path):  # if it already exists, we do nothing. TODO: Maybe add overwrite option?
+        if is_file(
+            save_path
+        ):  # if it already exists, we do nothing. TODO: Maybe add overwrite option?
             if verbose:
-                print('Item already exists!')
+                print("Item already exists!")
         else:
             urllib.request.urlretrieve(to_save, save_path)
 
@@ -580,7 +614,7 @@ def download(to_save, save_path, verbose=False):
             print(to_save + " was saved to: " + save_path)
     except Exception as e:
         print("Error - Could not save!")
-        print("File:", to_save, "\nPath:", save_path, '\n')
+        print("File:", to_save, "\nPath:", save_path, "\n")
         print(e)
 
 
@@ -594,7 +628,7 @@ def ez_download(list_of_items, save_directory=None, multithreaded=False):
     :return: N/A
     """
     if not save_directory:  # no save directory given means we save it to the desktop
-        save_directory = create_desktop_folder('python_download')
+        save_directory = create_desktop_folder("python_download")
 
     #  TODO: add a verbose mode for this as well?
     # Basically, need a way to let the user know shit is being downloaded without being annoying
@@ -640,14 +674,18 @@ def multithread_download(list_of_urls, threads=6, save_directory=None):
     :return: None
     """
     if not save_directory:
-        save_directory = create_desktop_folder('multithread_download')
-    
+        save_directory = create_desktop_folder("multithread_download")
+
     pool = Pool(threads)
-    pool.map(lambda file_url: download(file_url, os.path.join(save_directory, os.path.split(file_url)[1])),
-             list_of_urls)
+    pool.map(
+        lambda file_url: download(
+            file_url, os.path.join(save_directory, os.path.split(file_url)[1])
+        ),
+        list_of_urls,
+    )
 
 
-def replace_text(original_text, remove_characters="/\:*?\"<>|", replace_character=""):
+def replace_text(original_text, remove_characters=r'/\:*?"<>|', replace_character=""):
     new_text = ""
     for c in remove_characters:
         new_text = original_text.replace(c, replace_character)
@@ -698,7 +736,7 @@ def random_name(ext, file_length=6):
     :return: a random file name
     :rtype: str
     """
-    file_name = ''
+    file_name = ""
     letters = string.ascii_lowercase
     for i in range(file_length):
         file_name += random.choice(letters)
@@ -708,7 +746,7 @@ def random_name(ext, file_length=6):
     return file_name
 
 
-def continuous_input(message=None, end_word='stop'):
+def continuous_input(message=None, end_word="stop"):
     """
     Gets multiple input from the user until they enter the 'end_word'
 
@@ -763,7 +801,7 @@ def sleep(time_to_sleep, use_minutes=False, message=None, end_message=None):
 
     time.sleep(time_to_sleep)
 
-    if end_message: 
+    if end_message:
         print(end_message)
 
 
@@ -797,12 +835,14 @@ def unique_items(user_list, preserve_order=False):
     :return: a list with only unique items; no duplicates
     :rtype: list
     """
-    if not isinstance(user_list, list): 
+    if not isinstance(user_list, list):
         print("you must pass a list! Returning None")
         return None
 
     if preserve_order:
-        return list(OrderedDict.fromkeys(user_list))  # may not need to do this in later versions of Python3
+        return list(
+            OrderedDict.fromkeys(user_list)
+        )  # may not need to do this in later versions of Python3
     else:
         return list(set(user_list))
 
@@ -811,13 +851,13 @@ def list_difference(list1, list2):
     """
     Probably the most useful "list/set" operation for my use
     Takes list1 and returns the items from list1 that AREN'T in list2.
-    so 
+    so
     a = {1,2,3}
     b = {2,3,4}
     a - b == {1}
 
     Useful if you have, for example, a bunch of urls to save. list1 could be the urls to save,
-    and list2 could be a list of urls that are already saved. Using the function would return a 
+    and list2 could be a list of urls that are already saved. Using the function would return a
     list of only new urls that need to be saved
     :param list1 - the first list...
     :type list1: list
@@ -844,21 +884,22 @@ def file_info(file_path):
         print("File path({}) doesn't exist!".format(file_path))
         return {}
 
-    data['directory'] = os.path.dirname(file_path)
-    data['name'] = os.path.basename(file_path)
-    data['extension'] = os.path.splitext(file_path)[-1]
+    data["directory"] = os.path.dirname(file_path)
+    data["name"] = os.path.basename(file_path)
+    data["extension"] = os.path.splitext(file_path)[-1]
 
     return data
 
 
+"""
 def directory_to_dict(directory=None):
-    """
+    pass
     WIP: Takes a directory and produces a .json file on the directory's contents
     This will include subdirectories, files, and stats about them (how many folders, files, etc)
 
     Extra flags can give more meta data information -- like file size? date modified/created?
     TODO: Add Param Comments
-    """
+
     data = {}
     all_paths = []
     all_subdirectories = []  # this might just be a subset of all_paths
@@ -869,6 +910,7 @@ def directory_to_dict(directory=None):
 
     for path, subdirectories, files in os.walk(directory):
         print(path)
+    """
 
 
 def randint(a, b):
@@ -905,6 +947,5 @@ get_folders_in_directory = folders_in_directory
 easy_download = ez_download
 remove_duplicates = unique_items
 write_file = write_to_file
-directory_to_json = directory_to_dict
 get_json = read_json
 random_integer = randint
